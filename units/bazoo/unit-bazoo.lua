@@ -61,8 +61,8 @@ MakeSound("bazoo-attack", GetCurrentLuaPath().."/bazoo_attack.wav")
 
 DefineUnitType("unit-bazoo", {
 	Name = "Bazoo",
-	Image = {"file", GetCurrentLuaPath().."/unit_bazoo.png", "size", {64, 64}},
-	Shadow = {"file", GetCurrentLuaPath().."/unit_bazoo_s.png", "size", {64, 64}},
+	Image = {"file", GetCurrentLuaPath().."/unit_bazoo.png", "size", {46, 60}},
+	Shadow = {"file", GetCurrentLuaPath().."/unit_bazoo_s.png", "size", {46, 50}},
 	Animations = "animations-bazoo", Icon = "icon-bazoo",
 	Costs = {"time", 40, "titanium", 50, "crystal", 100},
 	Speed = 8, HitPoints = 50, DrawLevel = 25,
@@ -70,7 +70,7 @@ DefineUnitType("unit-bazoo", {
 	SightRange = 7, ComputerReactionRange = 6, PersonReactionRange = 6,
 	Armor = 2, BasicDamage = 5, PiercingDamage = 15, Missile = "missile-bazoo",
 	MaxAttackRange = 6, Priority = 60, Points = 50,
-	Corpse = "unit-dead-body4",
+	Corpse = {"unit-dead-body4", 0},
 	Type = "land", Demand = 0, 
 	RightMouseAction = "attack",
 	CanAttack = true, CanTargetLand = true, CanTargetAir = true,
@@ -82,6 +82,6 @@ DefineUnitType("unit-bazoo", {
 		"help", "bazoo-help",
 		"dead", "bazoo-die"}
 	})
-DefineHumanCorpse("bazoo")
+DefineHumanCorpse("bazoo", {46, 50})
 
 DefineAllow("unit-bazoo", "AAAAAAAA")

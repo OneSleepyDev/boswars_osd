@@ -52,9 +52,6 @@ DefineIcon({
 	Frame = 0,
 	File = "units/tank/ico_tank.png"})
 
-MakeSound("tank-ready", GetCurrentLuaPath().."/tank.ready.wav")
-MakeSound("tank-help", GetCurrentLuaPath().."/tank.underattack.wav")
-
 DefineUnitType("unit-tank", {
 	Name = "Tank",
 	Image = {"file", "units/tank/unit_tank.png", "size", {96, 96}},
@@ -75,10 +72,8 @@ DefineUnitType("unit-tank", {
 	NumDirections = 8, MaxAttackRange = 6,
 	Sounds = {
 		"selected", "assault-selected",
-		"acknowledge", "assault-acknowledge",
-		"ready", "tank-ready",
-		"help", "tank-help"
-		}
+		"acknowledge", "assault-acknowledge"
+	}
 })
 
 DefineAllow("unit-tank", "AAAAAAAA")

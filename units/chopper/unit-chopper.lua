@@ -9,7 +9,7 @@
 --
 --	unit-chopper.lua	-	Define the chopper unit.
 --
---	(c) Copyright 2005-2006 by Francois Beerten.
+--	(c) Copyright 2005 by François Beerten.
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -55,9 +55,6 @@ DefineIcon({
 	Frame = 0,
 	File = "units/chopper/ico_chopper.png"})
 
-MakeSound("chopper-ready", GetCurrentLuaPath().."/chopper.ready.wav")
-MakeSound("chopper-help", GetCurrentLuaPath().."/chopper.underattack.wav")
-
 DefineUnitType("unit-chopper", {
 	Name = "Chopper",
 	Image = {"file", "units/chopper/unit_chopper.png", "size", {128,128}},
@@ -65,7 +62,7 @@ DefineUnitType("unit-chopper", {
 	Animations = "animations-chopper", Icon = "icon-chopper",
 	Flip = false,
 	Costs = {"time", 100, "titanium", 150, "crystal", 450},
-	RepairCosts = {"crystal", 6},
+	RepairHp = 1, RepairCosts = {"crystal", 6},
 	Speed = 40, HitPoints = 50, DrawLevel = 125, TileSize  = {1, 1}, BoxSize = {64, 64},
 	SightRange = 7, Armor = 20, BasicDamage = 5, PiercingDamage = 30,
 	Missile = "missile-bazoo", Priority = 20, AnnoyComputerFactor = 65,
@@ -78,9 +75,7 @@ DefineUnitType("unit-chopper", {
 	NumDirections = 8, MaxAttackRange = 7,
 	Sounds = {
 		"selected", "grenadier-selected",
-		"acknowledge", "grenadier-acknowledge",
-		"ready", "chopper-ready",
-		"help", "chopper-help"
+		"acknowledge", "grenadier-acknowledge"
 	}
 })
 

@@ -9,7 +9,7 @@
 --
 --	unit-bomber.lua	-	Define the bomber unit.
 --
---	(c) Copyright 2005-2006 by Francois Beerten.
+--	(c) Copyright 2005 by François Beerten.
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -56,9 +56,6 @@ DefineMissileType("missile-bomber", {
 	ImpactSound = "rocket-impact", DrawLevel = 150,
 	Class = "missile-class-point-to-point", Sleep = 1, Speed = 16, Range = 16})
 
-MakeSound("bomber-ready", GetCurrentLuaPath().."/bomber.ready.wav")
-MakeSound("bomber-help", GetCurrentLuaPath().."/bomber.underattack.wav")
-
 DefineUnitType("unit-bomber", {
 	Name = "bomber Construction",
 	Image = {"file", "units/bomber/unit_bomber.png", "size", {128, 128}},
@@ -66,7 +63,7 @@ DefineUnitType("unit-bomber", {
 	Animations = "animations-bomber", Icon = "icon-bomber",
 	Flip = false,
 	Costs = {"time", 100, "titanium", 200, "crystal", 450},
-	RepairCosts = {"crystal", 6},
+	RepairHp = 1, RepairCosts = {"crystal", 6},
 	Speed = 20, HitPoints = 50, DrawLevel = 125, TileSize  = {2, 2}, BoxSize = {64, 64},
 	SightRange = 7, Armor = 20, BasicDamage = 50, PiercingDamage = 30,
 	Missile = "missile-bomber", Priority = 20, AnnoyComputerFactor = 65,
@@ -79,10 +76,8 @@ DefineUnitType("unit-bomber", {
 	NumDirections = 8, MaxAttackRange = 1,
 	Sounds = {
 		"selected", "grenadier-selected",
-		"acknowledge", "grenadier-acknowledge",
-		"ready", "bomber-ready",
-		"help", "bomber-help"
-		}
+		"acknowledge", "grenadier-acknowledge"
+	}
 })
 
 DefineAllow("unit-bomber", "AAAAAAAA")

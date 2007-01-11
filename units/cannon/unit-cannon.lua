@@ -9,7 +9,7 @@
 --
 --	unit-cannon.lua	-	Define the cannon unit.
 --
---	(c) Copyright 2004-2006 by Francois Beerten.
+--	(c) Copyright 2004-2005 by François Beerten.
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ DefineAnimations("animations-cannon", {
     Attack = {"unbreakable begin", "frame 5", "wait 5", 
               "frame 5", "sound bazoo-attack", "attack", "wait 1",
               "frame 10", "wait 15",
-              "frame 5", "wait 170", "frame 5", "unbreakable end", "wait 1", },
+              "frame 5", "wait 20", "frame 5", "unbreakable end", "wait 1", },
     Death = {"unbreakable begin", "frame 10", "unbreakable end", "wait 50", },
     })
 
@@ -70,37 +70,29 @@ DefineMissileType("missile-cannon", {
 	Class = "missile-class-point-to-point", Sleep = 1, 
 	Speed = 20, Range = 3})
 
-MakeSound("cannon-ready", GetCurrentLuaPath().."/cannon.completed.wav")
-MakeSound("cannon-help", GetCurrentLuaPath().."/cannon.underattack.wav")
-MakeSound("cannon-selected", GetCurrentLuaPath().."/cannon_selected.wav")
-
 DefineUnitType("unit-cannon", {
 	Name = "Cannon",
 	Image = {"file", "units/cannon/cannon.png", "size", {128, 128},},
 	Offset ={0, -20},
 	Shadow = {"file", "units/cannon/cannon_s.png", "size", {128, 128}},
 	Animations = "animations-cannon", Icon = "icon-cannon",
-	Costs = {"time", 970, "titanium", 2950, "crystal", 3950}, 
+	Costs = {"time", 330, "titanium", 250, "crystal", 350}, 
 	RepairHp = 2, RepairCosts = {"titanium", 2}, 
         Construction = "construction-cannon",
 	Speed = 0, HitPoints = 160, DrawLevel = 25, TileSize  = {2, 2}, 
         BoxSize = {64, 58},
 	SightRange = 6, ComputerReactionRange = 16, PersonReactionRange = 6, 
         Armor = 10,
-	BasicDamage = 40, PiercingDamage = 16, MaxAttackRange = 27, 
+	BasicDamage = 6, PiercingDamage = 6, MaxAttackRange = 26, 
         Missile = "missile-cannon",
 	Priority = 20, AnnoyComputerFactor = 45, Points = 100,
 	ExplodeWhenKilled = "missile-160x128-explosion", RightMouseAction = "attack",
-	CanAttack = true, CanTargetLand = true, CanTargetAir = false,
+	CanAttack = true, CanTargetLand = true, CanTargetAir = true,
 	NumDirections = 8, Flip = false,
-	Corpse = "build-dead-cannon", Type = "land",
+	Corpse = {"build-dead-cannon", 0}, Type = "land",
 	Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
-	Sounds = {
-		"selected", "cannon-selected",
-		"help", "cannon-help",
-		"ready", "cannon-ready"
-		}
+	Sounds = {"selected", "cannon-selected",}
 })
 
 DefineAnimations("animations-dead-cannon", {

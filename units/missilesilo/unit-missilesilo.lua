@@ -52,7 +52,7 @@ DefineAnimations("animations-msilo", {
              "frame 18", "wait 5", "frame 19", "wait 5", },
     Train = {"frame 15", "wait 5", "frame 16", },
     Attack = {"unbreakable begin", "frame 11", "wait 4",
-        "frame 12", --[["sound msilo-attack",]] "wait 2", "attack",
+        "frame 12", "sound msilo-attack", "wait 2", "attack",
         "frame 13", "wait 2", "frame 14", "wait 10", "frame 15", 
         "unbreakable end", "wait 25", },
     })
@@ -69,7 +69,7 @@ DefineUnitType("unit-msilo", {
 	SightRange = 3, Armor = 10, BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 20, AnnoyComputerFactor = 45,
 	Points = 100, ExplodeWhenKilled = "missile-160x128-explosion",
-	Corpse = "build-dead-msilo", Type = land,
+	Corpse = {"build-dead-msilo", 0}, Type = land,
 	MaxMana = 1000, CanCastSpell = {"spell-nuke"},
 	Demand = 400, Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,

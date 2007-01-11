@@ -53,30 +53,30 @@ DefineAnimations("animations-nuke", {
         "frame 13", "wait 20", "frame 14", "wait 20", "wait 20", },
     })
 
-MakeSound("nuke-selected", GetCurrentLuaPath().."/sfx_pplnt.select.wav")
-MakeSound("nuke-ready", GetCurrentLuaPath().."/power.plant.completed.wav")
-MakeSound("nuke-help", GetCurrentLuaPath().."/power.plant.underattack.wav")
-MakeSound("nuke-dead", GetCurrentLuaPath().."/sfx_pplnt.die.wav")
+MakeSound("gen-selected", GetCurrentLuaPath().."/sfx_pplnt.select.wav")
+MakeSound("gen-ready", GetCurrentLuaPath().."/power.plant.completed.wav")
+MakeSound("gen-help", GetCurrentLuaPath().."/power.plant.underattack.wav")
+MakeSound("gen-dead", GetCurrentLuaPath().."/sfx_pplnt.die.wav")
 
 DefineUnitType("unit-nuke", {
 	Name = "nukeplant",
 	Image = {"file", GetCurrentLuaPath().."/nukeplant.png", "size", {256, 256}},
 	Shadow = {"file", GetCurrentLuaPath().."/nukeplant_s.png", "size", {256, 256}},
 	Animations = "animations-nuke", Icon = "icon-nuke",
-	Costs = {"time", 500, "titanium", 3000, "crystal", 750},
+	Costs = {"time", 600, "titanium", 5000, "crystal", 5000},
 	RepairHp = 2, RepairCosts = {"titanium", 5}, Construction = "construction-nuke",
 	Speed = 0, HitPoints = 350, DrawLevel = 25, TileSize  = {7, 5}, BoxSize = {224, 160},
 	SightRange = 3, Armor = 15 , BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 50, AnnoyComputerFactor = 55,
-	Points = 200, Supply = 2500, ExplodeWhenKilled = "missile-160x128-explosion",
-	Corpse = "build-dead-nuke", Type = "land",
+	Points = 200, Supply = 1000, ExplodeWhenKilled = "missile-160x128-explosion",
+	Corpse = {"build-dead-nuke", 0}, Type = "land",
 	Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
 	Sounds = {
-		"selected", "nuke-selected",
-		"ready", "nuke-ready",
-		"help", "nuke-help",
-		"dead", "nuke-dead"}
+		"selected", "gen-selected",
+		"ready", "gen-ready",
+		"help", "gen-help",
+		"dead", "gen-dead"}
 	})
 
 DefineAnimations("animations-nukebuild", {
