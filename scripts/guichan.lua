@@ -27,7 +27,7 @@
 --
 --      $Id$
 
--- Global useful objects for menus  ----------
+-- Global usefull objects for menus  ----------
 dark = Color(38, 38, 78, 130)
 clear = Color(200, 200, 120)
 black = Color(0, 0, 0)
@@ -37,82 +37,51 @@ bckground:Load()
 bckground:Resize(Video.Width, Video.Height)
 backgroundWidget = ImageWidget(bckground)
 
-function AddMenuHelpers(menu)
-  function menu:addCentered(widget, x, y)
-    self:add(widget, x - widget:getWidth() / 2, y)
+-- Store the widget in the container. This way we keep a refence
+-- to the widget until the container gets deleted.
+-- TODO: embed this in tolua++
+local guichanadd = Container.add
+Container.add = function(self, widget, x, y)
+  -- ugly hack, should be done in some kind of constructor
+  if not self._addedWidgets then
+     self._addedWidgets = {}
   end
+  self._addedWidgets[widget] = true
+  guichanadd(self, widget, x, y)
+end
 
-  function menu:addLabel(text, x, y, font, center)
-    local label = Label(text)
-    if (font == nil) then font = Fonts["large"] end
-    label:setFont(font)
-    label:adjustSize()
-    if (center == nil or center == true) then -- center text by default
-      x = x - label:getWidth() / 2
-    end
-    self:add(label, x, y)
+Container.addCentered = function(self, widget, x, y)
+  self.add(self, widget, x - widget:getWidth() / 2, y)
+end
 
-    return label
-  end
-  function menu:addMultiLineLabel(text, x, y, font, center, width)
-    local label = MultiLineLabel(text)
-    if (font == nil) then font = Fonts["large"] end
-    label:setFont(font)
-    if (width == nil) then width = 240 end
-    label:setLineWidth(width)
-    label:adjustSize()
-    if (center == nil or center == true) then -- center text by default
-      x = x - label:getWidth() / 2
-    end
-    self:add(label, x, y)
+function BosMenu(title)
+  local menu
+  local exitButton
 
-    return label
-  end
+  menu = MenuScreen()
 
+  menu:add(backgroundWidget, 0, 0)
 
-  function menu:writeText(text, x, y)
-    return self:addLabel(text, x, y, Fonts["game"], false)
-  end
-
-  function menu:writeLargeText(text, x, y)
-    return self:addLabel(text, x, y, Fonts["large"], false)
-  end
-
-  function menu:addButton(caption, hotkey, x, y, callback, size)
-    local b = ButtonWidget(caption)
-    b:setHotKey(hotkey)
+  function menu:addButton(caption, x, y, callback)
+    local b
+    b = ButtonWidget(caption)
     b:setActionCallback(callback)
-    if (size == nil) then size = {200, 24} end
-    b:setSize(size[1], size[2])
+    b:setSize(200, 24)
     b:setBackgroundColor(dark)
     b:setBaseColor(dark)
     self:add(b, x, y)
     return b
   end
 
-  function menu:addSmallButton(caption, hotkey, x, y, callback)
-    return self:addButton(caption, hotkey, x, y, callback, {106, 28})
-  end
-
-  function menu:addSlider(min, max, w, h, x, y, callback)
-    local b = Slider(min, max)
-    b:setBaseColor(dark)
-    b:setForegroundColor(clear)
-    b:setBackgroundColor(clear)
-    b:setSize(w, h)
-    b:setActionCallback(function(s) callback(b, s) end)
-    self:add(b, x, y)
-    return b
-  end
-
   function menu:addListBox(x, y, w, h, list)
-    local bq = ListBoxWidget(w, h)
+    local bq
+    bq = ListBoxWidget(w, h)
     bq:setList(list)
     bq:setBaseColor(black)
     bq:setForegroundColor(clear)
     bq:setBackgroundColor(dark)
-    bq:setFont(Fonts["game"])
-    self:add(bq, x, y)   
+    bq:setFont(CFont:Get("game"))
+    menu:add(bq, x, y)   
     bq.itemslist = list
     return bq
   end
@@ -127,37 +96,37 @@ function AddMenuHelpers(menu)
        lister = ListFilesInDirectory
     end
     fileslist = lister(path)
-    for i,f in ipairs(fileslist) do
-      if (string.find(f, filter)) then
+    for i,f in fileslist do
+      if(string.find(f, filter)) then
         mapslist[u] = f
         u = u + 1
       end
     end
 
-    local bq = self:addListBox(x, y, w, h, mapslist)
+    local bq
+    bq = menu:addListBox(x, y, w, h, mapslist)
     bq.getSelectedItem = function(self)
-      if (self:getSelected() < 0) then
-        return self.itemslist[1]
-      end
-      return self.itemslist[self:getSelected() + 1]
+        return self.itemslist[self:getSelected() + 1]
     end
 
     return bq
   end
 
   function menu:addCheckBox(caption, x, y, callback)
-    local b = CheckBox(caption)
+    local b
+    b = CheckBox(caption)
     b:setBaseColor(clear)
     b:setForegroundColor(clear)
     b:setBackgroundColor(dark)
     b:setActionCallback(function(s) callback(b, s) end)
-    b:setFont(Fonts["game"])
+    b:setFont(CFont:Get("game"))
     self:add(b, x, y)
     return b
   end
 
   function menu:addRadioButton(caption, group, x, y, callback)
-    local b = RadioButton(caption, group)
+    local b
+    b = RadioButton(caption, group)
     b:setBaseColor(dark)
     b:setForegroundColor(clear)
     b:setBackgroundColor(dark)
@@ -168,58 +137,58 @@ function AddMenuHelpers(menu)
 
   function menu:addDropDown(list, x, y, callback)
     local dd = DropDownWidget()
-    dd:setFont(Fonts["game"])
+    dd:setFont(CFont:Get("game"))
     dd:setList(list)
     dd:setActionCallback(function(s) callback(dd, s) end)
     dd:setBaseColor(dark)
     dd:setForegroundColor(clear)
     dd:setBackgroundColor(dark)
     self:add(dd, x, y)
-    return dd
   end
 
-  function menu:addTextInputField(text, x, y, w)
+  function menu:writeText(text, x, y)
+    local label = Label(text)
+    label:setFont(CFont:Get("game"))
+    label:setSize(200, 30)
+    menu:add(label, x, y)
+    return label
+  end
+
+  function menu:writeLargeText(text, x, y)
+    local label = Label(text)
+    label:setFont(CFont:Get("large"))
+    label:setSize(200, 30)
+    menu:add(label, x, y)
+    return label
+  end
+
+  function menu:addTextInputField(text, x, y)
     local b = TextField(text)
-    b:setActionCallback(function() end) --FIXME: remove this?
-    b:setFont(Fonts["game"])
+    b:setActionCallback(function() print("field") end)
+    b:setFont(CFont:Get("game"))
     b:setBaseColor(clear)
     b:setForegroundColor(clear)
     b:setBackgroundColor(dark)
-    if (w == nil) then w = 100 end
-    b:setSize(w, 18)
-    self:add(b, x, y)
+    b:setSize(100, 18)
+    menu:add(b, x, y)
     return b
   end
-end
-
-function BosMenu(title, background)
-  local menu
-  local bg
-  local bgg
-
-  menu = MenuScreen()
-
-  if background == nil then
-    bg = backgroundWidget
-  else
-    bgg = CGraphic:New(background)
-    bgg:Load()
-    bgg:Resize(Video.Width, Video.Height)
-    bg = ImageWidget(bgg)
-  end
-  menu:add(bg, 0, 0)
-
-  AddMenuHelpers(menu)
 
   if title then
-    menu:addLabel(title, Video.Width / 2, Video.Height / 20, Fonts["large"])
+    local titlelabel = Label(title)
+    titlelabel:setFont(CFont:Get("large"))
+    titlelabel:adjustSize()
+    menu:addCentered(titlelabel, Video.Width / 2, Video.Height/20)
   end
 
+  exitButton = menu:addButton(_("~!Exit"),
+        Video.Width / 2 - 100, Video.Height - 100,
+        function() menu:stop() end)
   return menu
 end
 
 -- Default configurations -------
-Widget:setGlobalFont(Fonts["large"])
+Widget:setGlobalFont(CFont:Get("large"))
 
 
 -- Define the different menus ----------
@@ -230,82 +199,9 @@ function RunSubMenu(s)
   menu:run()
 end
 
-function RunResultsMenu()
-  local menu
-  local background = "graphics/screens/menu.png"
-  local sx = Video.Width / 20
-  local sy = Video.Height / 20
-  local result
-
-  if GameResult == GameVictory then
-    result = _("Victory !")
-    background = "graphics/screens/victory.png"
-  elseif GameResult == GameDraw then
-    result = _("Draw !")
-  elseif GameResult == GameDefeat then
-    result = _("Defeat !")
-    background = "graphics/screens/defeat.png"
-  else 
-    return
-  end
-
-  menu = BosMenu(_("Results"), background)
-  menu:writeLargeText(result, sx*6, sy*5)
-
-  menu:writeText(_("Player"), sx*3, sy*7)
-  menu:writeText(_("Units"), sx*6, sy*7)
-  menu:writeText(_("Buildings"), sx*8, sy*7)
-  menu:writeText(_("Kills"), sx*10, sy*7)
-  menu:writeText(_("Razings"), sx*12, sy*7)
-
-  for i=0,7 do
-    if (GetPlayerData(i, "TotalUnits") > 0 ) then
-      menu:writeText(i .. " ".. GetPlayerData(i, "Name"), sx*3, sy*(8+i))
-      menu:writeText(GetPlayerData(i, "TotalUnits"), sx*6, sy*(8+i))
-      menu:writeText(GetPlayerData(i, "TotalBuildings"), sx*8, sy*(8+i))
-      menu:writeText(GetPlayerData(i, "TotalKills"), sx*10, sy*(8+i))
-      menu:writeText(GetPlayerData(i, "TotalRazings"), sx*12, sy*(8+i))     
-    end
-  end
-
-  menu:addButton(_("~!Continue"), "c", Video.Width / 2 - 100, Video.Height - 100,
-                 function() menu:stop() end)
-
-  menu:run()
-end
-
-function RunMap(map, objective, fow, revealmap)
-  if objective == nil then
-    current_objective = default_objective
-  else
-    current_objective = objective
-  end
-  loop = true
-  while (loop) do
-    InitGameVariables()
-    if fow ~= nil then
-      SetFogOfWar(fow)
-    end
-    if revealmap == true then
-       RevealMap()
-    end
-    StartMap(map)
-    if GameResult ~= GameRestart then
-      loop = false
-    end
-  end
-  RunResultsMenu()
-end
-
-
-function ResetMapOptions()
-  GameSettings.Difficulty = 5
-  GameSettings.MapRichness = 5
-  GameSettings.Resources = 5
-  GameSettings.NoFogOfWar = false
-  GameSettings.RevealMap = 0
-end
-
+difficulty = 5
+mapresources = 5
+startingresources = 5
 
 function RunStartGameMenu(s)
   local menu
@@ -315,65 +211,62 @@ function RunStartGameMenu(s)
   local players
   local sx = Video.Width / 20
   local sy = Video.Height / 20
-  local selectedmap = "islandwar.smp"
+  local map = "default.smp"
 
   menu = BosMenu(_("Start Game"))
 
   menu:writeLargeText(_("Map"), sx, sy*3)
   menu:writeText(_("File:"), sx, sy*3+30)
-  local maptext = menu:writeText(selectedmap, sx+50, sy*3+30)
-  maptext:setWidth(sx * 9 - 50 - 20)
+  maptext = menu:writeText(map, sx+50, sy*3+30)
   menu:writeText(_("Players:"), sx, sy*3+50)
-  local players = menu:writeText("             ", sx+70, sy*3+50)
+  players = menu:writeText(numplayers, sx+70, sy*3+50)
   menu:writeText(_("Description:"), sx, sy*3+70)
-  local descr = menu:writeText("No map", sx+20, sy*3+90)
-  descr:setWidth(sx * 9 - 20 - 20)
+  descr = menu:writeText(description, sx+20, sy*3+90)
 
-  local fow = menu:addCheckBox(_("Fog of war"), sx, sy*3+120,
-    function(f) GameSettings.NoFogOfWar = not f:isMarked() end)
-  fow:setMarked(preferences.FogOfWar)
-  local revealmap = menu:addCheckBox(_("Reveal map"), sx, sy*3+150,
-    function(f) GameSettings.RevealMap = bool2int(f:isMarked()) end)
+  local fow = menu:addCheckBox(_("Fog of war"), sx, sy*3+120, function() end)
+  fow:setMarked(true)
+  local revealmap = menu:addCheckBox(_("Reveal map"), sx, sy*3+150, function() end)
   
-  ResetMapOptions()
   menu:writeText(_("Difficulty:"), sx, sy*11)
   menu:addDropDown({_("easy"), _("normal"), _("hard")}, sx + 90, sy*11 + 7,
-    function(dd) GameSettings.Difficulty = (5 - dd:getSelected()*2) end)
+      function(dd) difficulty = (5 - dd:getSelected()*2) end)
   menu:writeText(_("Map richness:"), sx, sy*11+25)
   menu:addDropDown({_("high"), _("normal"), _("low")}, sx + 110, sy*11+25 + 7,
-    function(dd) GameSettings.MapRichness = (5 - dd:getSelected()*2) end)
+      function(dd) mapresources = (5 - dd:getSelected()*2) end)
   menu:writeText(_("Starting resources:"), sx, sy*11+50)
-  menu:addDropDown({_("high"), _("normal"), _("low")}, sx + 150, sy*11+50 + 7,
-    function(dd) GameSettings.Resources = (5 - dd:getSelected()*2) end)
+  menu:addDropDown({_("high"), _("normal"), _("low")}, sx + 140, sy*11+50 + 7,
+      function(dd) startingresources = (5 - dd:getSelected()*2) end)
 
   local OldPresentMap = PresentMap
   PresentMap = function(description, nplayers, w, h, id)
-    numplayers = nplayers
-    players:setCaption(""..nplayers)
-    descr:setCaption(description)
-    OldPresentMap(description, nplayers, w, h, id)
+      print(description)
+      numplayers = nplayers
+      players:setCaption(""..nplayers)
+      descr:setCaption(description)
+      OldPresentMap(description, nplayers, w, h, id)
   end
  
-  Load("maps/"..selectedmap)
+  Load("maps/"..map)
   local browser = menu:addBrowser("maps/", "^.*%.smp$",  sx*10, sy*2+20, sx*8, sy*11)
   local function cb(s)
+    print(browser:getSelectedItem())
     maptext:setCaption(browser:getSelectedItem())
     Load("maps/" .. browser:getSelectedItem())
-    selectedmap = browser:getSelectedItem()
+    map = browser:getSelectedItem()
   end
   browser:setActionCallback(cb)
 
-  AllowAllUnits()
   local function startgamebutton(s)
     print("Starting map -------")
-    RunMap("maps/" .. selectedmap, nil, fow:isMarked(), revealmap:isMarked())
+    SetFogOfWar(fow:isMarked())
+    if revealmap:isMarked() == true then
+       RevealMap()
+    end
+    StartMap("maps/" .. map)
     PresentMap = OldPresentMap
     menu:stop()
   end
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("~!Start"), "s", Video.Width /2 + 50 ,  Video.Height - 100,
-                 startgamebutton)
+  menu:addButton(_("Start"),  sx * 11,  sy*14, startgamebutton)
 
   menu:run()
   PresentMap = OldPresentMap
@@ -383,156 +276,84 @@ function RunReplayMenu(s)
   local menu
   menu = BosMenu(_("Show a Replay"))
 
-  -- By default allow all units.
-  -- Current implementation relies on the hypothesis that the map setup will
-  -- configure which units are allowed.
-  -- Stratagus should store complete starting conditions in the log.
-  AllowAllUnits()
-
   local browser = menu:addBrowser("~logs/", ".log$", 300, 100, 300, 200)
-  local reveal = menu:addCheckBox(_("Reveal map"), 100, 250, function() end)
 
   function startreplaybutton(s)
     print("Starting map -------")
-    ResetMapOptions()
-    InitGameVariables()
-    StartReplay("~logs/" .. browser:getSelectedItem(), reveal:isMarked())
-    RunResultsMenu()
+    StartReplay("~logs/" .. browser:getSelectedItem())
     menu:stop()
   end
 
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("~!Start"), "s", Video.Width /2 + 50 ,  Video.Height - 100,
-                 startreplaybutton)
+  menu:addButton(_("~!Start"), 100, 300, startreplaybutton)
 
   menu:run()
 end
 
+function RunCampaignsMenu(s)
+  local menu
+  local b
+
+  menu = BosMenu(_("List of Campaigns"))
+
+  local browser = menu:addBrowser("campaigns/", "^%a", 300, 100, 300, 200, ListDirsInDirectory)
+  function startgamebutton(s)
+    print("Starting campaign")
+    Load("campaigns/" .. browser:getSelectedItem() .. "/campaign1.lua")
+    menu:stop()
+  end
+  menu:addButton(_("Start"), 100, 300, startgamebutton)
+
+  menu:run()
+end
 
 function RunLoadGameMenu(s)
   local menu
   local b
 
   menu = BosMenu(_("Load Game"))
-  local browser = menu:addBrowser("~save", ".sav.gz$", 
-                                 Video.Width / 2 - 150, 100, 300, 200)
+  local browser = menu:addBrowser("~save", ".sav.gz$", 300, 100, 300, 200)
     function startgamebutton(s)
-      print("Starting saved game")
-      currentCampaign = nil
-      loop = true
-      while (loop) do
-        InitGameVariables()
-        StartSavedGame("~save/" .. browser:getSelectedItem())
-        if (GameResult ~= GameRestart) then
-          loop = false
-        end
-      end
-      RunResultsMenu()
-      if currentCampaign ~= nil then
-         if GameResult == GameVictory then
-            position = position + 1
-         elseif GameResult == GameDefeat then
-            position = position
-         else
-            currentCampaign = nil
-            return
-         end
-         RunCampaign(currentCampaign)
-      end
+    print("Starting saved game")
+    StartSavedGame("~save/" .. browser:getSelectedItem())
     menu:stop()
   end
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("~!Start"), "s", Video.Width /2 + 50 ,  Video.Height - 100,
-                 startgamebutton)
+  menu:addButton(_("Start"), 100, 300, startgamebutton)
 
-  DisallowAllUnits()
   menu:run()
 end
 
 function RunEditorMenu(s)
   local menu
-  local sx = Video.Width / 20
-  local sy = Video.Height / 20
-  local selectedmap = "islandwar.smp"
-  local numplayers = 2
-
   menu = BosMenu(_("Editor"))
 
-  menu:writeLargeText(_("Map"), sx, sy*3)
-  menu:writeText(_("File:"), sx, sy*3+30)
-  local maptext = menu:writeText(selectedmap .. "                       ", sx+50, sy*3+30)
-  menu:writeText(_("Players:"), sx, sy*3+50)
-  local players = menu:writeText("             ", sx+70, sy*3+50)
-  menu:writeText(_("Description:"), sx, sy*3+70)
-  local descr = menu:writeText("                                        ", sx+20, sy*3+90)
-
-  local OldPresentMap = PresentMap
-  PresentMap = function(description, nplayers, w, h, id)
-    numplayers = nplayers
-    players:setCaption(""..nplayers)
-    descr:setCaption(description)
-    OldPresentMap(description, nplayers, w, h, id)
-  end
-
-  Load("maps/"..selectedmap)
-  local browser = menu:addBrowser("maps/", "^.*%.smp$", sx*10, sy*2+20, sx*8, sy*11)
-  local function selectMap(s)
-    maptext:setCaption(browser:getSelectedItem())
-    Load("maps/" .. browser:getSelectedItem())
-    selectedmap = browser:getSelectedItem()
-  end
-  browser:setActionCallback(selectMap)
-
+  local browser = menu:addBrowser("maps/", "^.*%.smp$", 300, 100, 300, 200)
   function starteditorbutton(s)
-    UI.MenuButton:SetCallback(function() RunEditorIngameMenu() end)
-    HandleCommandKey = HandleEditorIngameCommandKey
-    StartEditor(selectedmap)
-    UI.MenuButton:SetCallback(function() RunGameMenu() end)
-    HandleCommandKey = HandleIngameCommandKey
+    StartEditor("maps/" .. browser:getSelectedItem())
     menu:stop()
   end
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("Start ~!Editor"), "e", Video.Width / 2 + 50, Video.Height -100,
-                 starteditorbutton)
+
+  menu:addButton(_("Start Editor"), 100, 300, starteditorbutton)
 
   menu:run()
-  PresentMap = OldPresentMap
 end
 
 Load("scripts/menus/network.lua")
 Load("scripts/menus/options.lua")
 Load("scripts/menus/credits.lua")
 Load("scripts/menus/widgetsdemo.lua")
-Load("scripts/menus/ingame/game.lua")
-Load("scripts/menus/ingame/editor.lua")
-Load("scripts/menus/campaigns.lua")
 
 function BuildMainMenu(menu)
-  local x = Video.Width / 3
-  local ystep = Video.Height / 10
-  local x1 = x - 100
-  local x2 = 2*x - 100
-
-  menu:addButton(_("~!Start Game"), "s", x1, ystep * 2, RunStartGameMenu)
-  menu:addButton(_("~!Load Game"), "l", x1, ystep * 3, RunLoadGameMenu)
-  menu:addButton(_("~!Campaigns"), "c", x2, ystep * 2, RunCampaignsMenu)
-  menu:addButton(_("Show ~!Replay"), "r", x2, ystep * 3, RunReplayMenu)
-
-  menu:addButton(_("~!MultiPlayer"), "m", x1, ystep * 5, RunMultiPlayerMenu)
-  menu:addButton(_("~!Options"), "o", x2, ystep * 5, function() RunOptionsMenu() menu:stop(1) end)
-
-  menu:addButton(_("Cre~!dits"), "d", x1, ystep * 6, RunCreditsMenu)
-  menu:addButton(_("Start ~!Editor"), "e", x2, ystep * 6, RunEditorMenu)
-
-  menu:addButton(_("E~!xit"), "x", Video.Width / 2 - 100, Video.Height - 100,
-                 function() menu:stop() end)
-
-  if false then 
-     menu:addButton("~!Widgets Demo", "w", x2, ystep * 7, RunWidgetsMenu)
-  end
+  local x = Video.Width / 2 - 100
+  local ystep = Video.Height / 20
+  menu:addButton(_("~!Start Game"), x, ystep * 4, RunStartGameMenu)
+  menu:addButton(_("Start ~!Editor"), x, ystep * 5, RunEditorMenu)
+  menu:addButton(_("~!Options"), x, ystep * 6, function() RunOptionsMenu() menu:stop(1) end)
+  menu:addButton(_("~!MultiPlayer"), x, ystep * 7, RunMultiPlayerMenu)
+  menu:addButton(_("~!Campaigns"), x, ystep * 8, RunCampaignsMenu)
+  menu:addButton(_("~!Load Game"), x, ystep * 9, RunLoadGameMenu)
+  menu:addButton(_("Show ~!Replay"), x, ystep * 10, RunReplayMenu)
+  menu:addButton(_("~!Credits"), x, ystep * 11, RunCreditsMenu)
+  menu:addButton(_("~!Widgets Demo"), x, ystep * 12, RunWidgetsMenu)
 end
 
 function RunMainMenu(s)
@@ -548,4 +369,6 @@ end
 
 
 RunMainMenu()
+
+
 

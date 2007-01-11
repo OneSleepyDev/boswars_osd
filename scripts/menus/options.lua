@@ -9,7 +9,7 @@
 --
 --      options.lua - The option menus
 --
---      (c) Copyright 2005-2006 by Francois Beerten
+--      (c) Copyright 2005 by François Beerten
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -42,9 +42,9 @@ function RunSpeedOptionsMenu(s)
   b:adjustSize();
   menu:add(b, offx + 16, offy + 36 * 1)
 
-  local gamespeedslider = Slider(15, 75)
-  gamespeedslider:setValue(GetGameSpeed())
-  gamespeedslider:setActionCallback(function() SetGameSpeed(gamespeedslider:getValue()) end)
+  local gamespeedslider = Slider(50, 250)
+  gamespeedslider:setValue(0) --FIXME
+  gamespeedslider:setActionCallback(function() fixme(gamespeedslider:getValue()) end)
   gamespeedslider:setWidth(198)
   gamespeedslider:setHeight(18)
   gamespeedslider:setBaseColor(dark)
@@ -55,32 +55,84 @@ function RunSpeedOptionsMenu(s)
   b = Label(_("slow"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
-  menu:add(b, offx + 32, offy + 36 * 2 + 6)
+  menu:addCentered(b, offx + 34, offy + 36 * 2 + 6)
   
   b = Label(_("fast"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
-  menu:add(b, offx + 230 - b:getWidth(), offy + 36 * 2 + 6)
+  menu:addCentered(b, offx + 230, offy + 36 * 2 + 6)
 
-  menu:addButton(_("~!OK"), "o", offx + 128 - (200 / 2), offy + 245,
-    function()
-      preferences.GameSpeed = GetGameSpeed()
-      SavePreferences()
-      menu:stop()
-    end)
+  b = Label(_("Mouse Scroll"))
+  b:setFont(CFont:Get("game"))
+  b:adjustSize();
+  menu:add(b, offx + 16, offy + 36 * 3)
+
+  local mousescrollslider = Slider(0, 10)
+  if (GetMouseScroll()) then speed = GetMouseScrollSpeed() else speed = 0 end
+  mousescrollslider:setValue(10 - speed)
+  mousescrollslider:setActionCallback(function() SetMouseScrollSpeed(10 - mousescrollslider:getValue()) end)
+  mousescrollslider:setWidth(198)
+  mousescrollslider:setHeight(18)
+  mousescrollslider:setBaseColor(dark)
+  mousescrollslider:setForegroundColor(clear)
+  mousescrollslider:setBackgroundColor(clear)
+  menu:add(mousescrollslider, offx + 32, offy + 36 * 3.5)
+
+  b = Label(_("off"))
+  b:setFont(CFont:Get("game"))
+  b:adjustSize();
+  menu:addCentered(b, offx + 34, offy + 36 * 4 + 6)
+  
+  b = Label(_("fast"))
+  b:setFont(CFont:Get("game"))
+  b:adjustSize();
+  menu:addCentered(b, offx + 230, offy + 36 * 4 + 6)
+
+  b = Label(_("Keyboard Scroll"))
+  b:setFont(CFont:Get("game"))
+  b:adjustSize();
+  menu:add(b, offx + 16, offy + 36 * 5)
+
+  local keyboardscrollslider = Slider(0, 10)
+  if (GetKeyScroll()) then speed = GetKeyScrollSpeed() else speed = 0 end
+  keyboardscrollslider:setValue(10 - speed)
+  keyboardscrollslider:setActionCallback(function() SetKeyScrollSpeed(10 - keyboardscrollslider:getValue()) end)
+  keyboardscrollslider:setWidth(198)
+  keyboardscrollslider:setHeight(18)
+  keyboardscrollslider:setBaseColor(dark)
+  keyboardscrollslider:setForegroundColor(clear)
+  keyboardscrollslider:setBackgroundColor(clear)
+  menu:add(keyboardscrollslider, offx + 32, offy + 36 * 5.5)
+
+  b = Label(_("off"))
+  b:setFont(CFont:Get("game"))
+  b:adjustSize();
+  menu:addCentered(b, offx + 34, offy + 36 * 6 + 6)
+  
+  b = Label(_("fast"))
+  b:setFont(CFont:Get("game"))
+  b:adjustSize();
+  menu:addCentered(b, offx + 230, offy + 36 * 6 + 6)
+
+  menu:addButton(_("~!OK"), offx + 128 - (200 / 2), offy + 245,
+    function() SavePreferences(); menu:stop() end)
 
   menu:run()
 end
 
-function AddSoundOptions(menu, offx, offy, centerx, bottom)
+function RunSoundOptionsMenu(s)
+  local menu
   local b
+  local offx = (Video.Width - 352) / 2
+  local offy = (Video.Height - 352) / 2
+
+  menu = BosMenu(_("Sound Options"))
 
   b = Label(_("Effects Volume"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
   menu:add(b, offx + 16, offy + 36 * 1)
 
-  -- FIXME: disable if effects turned off
   local soundslider = Slider(0, 255)
   soundslider:setValue(GetEffectsVolume())
   soundslider:setActionCallback(function() SetEffectsVolume(soundslider:getValue()) end)
@@ -94,25 +146,25 @@ function AddSoundOptions(menu, offx, offy, centerx, bottom)
   b = Label(_("min"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
-  menu:add(b, offx + 32, offy + 36 * 2 + 6)
+  menu:addCentered(b, offx + 44, offy + 36 * 2 + 6)
   
   b = Label(_("max"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
-  menu:add(b, offx + 230 - b:getWidth(), offy + 36 * 2 + 6)
+  menu:addCentered(b, offx + 218, offy + 36 * 2 + 6)
 
   local effectscheckbox = {}
-  effectscheckbox = menu:addCheckBox(_("Enabled"), offx + 32, offy + 36 * 3,
+  effectscheckbox = menu:addCheckBox(_("Enabled"), offx + 240, offy + 36 * 1.5,
     function() SetEffectsEnabled(effectscheckbox:isMarked()) end)
+  effectscheckbox:setFont(CFont:Get("large"))
   effectscheckbox:setMarked(IsEffectsEnabled())
   effectscheckbox:adjustSize();
 
   b = Label(_("Music Volume"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
-  menu:add(b, offx + 16, offy + 36 * 4)
+  menu:add(b, offx + 16, offy + 36 * 3)
 
-  -- FIXME: disable if music turned off
   local musicslider = Slider(0, 255)
   musicslider:setValue(GetMusicVolume())
   musicslider:setActionCallback(function() SetMusicVolume(musicslider:getValue()) end)
@@ -121,57 +173,35 @@ function AddSoundOptions(menu, offx, offy, centerx, bottom)
   musicslider:setBaseColor(dark)
   musicslider:setForegroundColor(clear)
   musicslider:setBackgroundColor(clear)
-  menu:add(musicslider, offx + 32, offy + 36 * 4.5)
+  menu:add(musicslider, offx + 32, offy + 36 * 3.5)
 
   b = Label(_("min"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
-  menu:add(b, offx + 32, offy + 36 * 5 + 6)
+  menu:addCentered(b, offx + 44, offy + 36 * 4 + 6)
   
   b = Label(_("max"))
   b:setFont(CFont:Get("game"))
   b:adjustSize();
-  menu:add(b, offx + 230 - b:getWidth(), offy + 36 * 5 + 6)
+  menu:addCentered(b, offx + 218, offy + 36 * 4 + 6)
 
   local musiccheckbox = {}
-  musiccheckbox = menu:addCheckBox(_("Enabled"), offx + 32, offy + 36 * 6,
+  musiccheckbox = menu:addCheckBox(_("Enabled"), offx + 240, offy + 36 * 3.5,
     function() SetMusicEnabled(musiccheckbox:isMarked()) end)
+  musiccheckbox:setFont(CFont:Get("large"))
   musiccheckbox:setMarked(IsMusicEnabled())
   musiccheckbox:adjustSize();
 
-  b = menu:addButton(_("~!OK"), "o", centerx, bottom - 11 - 27,
-    function()
-      preferences.EffectsVolume = GetEffectsVolume()
-      preferences.EffectsEnabled = IsEffectsEnabled()
-      preferences.MusicVolume = GetMusicVolume()
-      preferences.MusicEnabled = IsMusicEnabled()
-      SavePreferences()
-      menu:stop()
-    end)
-end
-
-function RunSoundOptionsMenu(s)
-  local menu
-  local offx = (Video.Width - 260) / 2
-  local offy = (Video.Height - 352) / 2
-
-  menu = BosMenu(_("Sound Options"))
-
-  AddSoundOptions(menu, offx, offy, offx + 130 - 200/2, offy + 352)
+  menu:addButton(_("~!OK"), offx + 176 - (200 / 2), offy + 352 - 11 - 27,
+    function() SavePreferences(); menu:stop() end)
 
   menu:run()
 end
 
 function SetVideoSize(width, height)
-  if (Video:ResizeScreen(width, height) == false) then
-    return
-  end
+  Video:ResizeScreen(width, height)
   bckground:Resize(Video.Width, Video.Height)
   backgroundWidget = ImageWidget(bckground)
-  Load("scripts/ui.lua")
-  preferences.VideoWidth = Video.Width
-  preferences.VideoHeight = Video.Height
-  SavePreferences()
 end
 
 function BuildVideoOptionsMenu(menu)
@@ -179,34 +209,33 @@ function BuildVideoOptionsMenu(menu)
   local offx = (Video.Width - 352) / 2 + 100
   local offy = (Video.Height - 352) / 2
 
-  b = menu:addRadioButton("640 x 480", "video", offx, offy + 36 * 1.5,
+  b = menu:addRadioButton(_("640 x 480"), "video", offx, offy + 36 * 1.5,
     function() SetVideoSize(640, 480) menu:stop(1) end)
   if Video.Width == 640 then
     b:setMarked(true)
   end
-  b = menu:addRadioButton("800 x 600", "video", offx, offy + 36 * 2.5,
+  b = menu:addRadioButton(_("800 x 600"), "video", offx, offy + 36 * 2.5,
     function() SetVideoSize(800, 600) menu:stop(1) end)
   if Video.Width == 800 then
     b:setMarked(true)
   end
-  b = menu:addRadioButton("1024 x 768", "video", offx, offy + 36 * 3.5,
+  b = menu:addRadioButton(_("1024 x 768"), "video", offx, offy + 36 * 3.5,
     function() SetVideoSize(1024, 768) menu:stop(1) end)
   if Video.Width == 1024 then
     b:setMarked(true)
   end
-  b = menu:addRadioButton("1600 x 1200", "video", offx, offy + 36 * 4.5,
+  b = menu:addRadioButton(_("1600 x 1200"), "video", offx, offy + 36 * 4.5,
     function() SetVideoSize(1600, 1200) menu:stop(1) end)
   if Video.Width == 1600 then
     b:setMarked(true)
   end
 
-  fullScreen = menu:addCheckBox(_("Fullscreen"), offx, offy + 36 * 5.5,
-    function()
-      ToggleFullScreen()
-      preferences.VideoFullScreen = Video.FullScreen
-      SavePreferences()
-    end)
-  fullScreen:setMarked(Video.FullScreen)
+  fullscreen = menu:addCheckBox(_("Fullscreen"), offx, offy + 36 * 5.5,
+    function() ToggleFullScreen() end)
+  b = Video.FullScreen 
+  if b == true then 
+    fullScreen:setMarked(true)
+  end
 end
 
 function RunVideoOptionsMenu(s)
@@ -216,60 +245,15 @@ function RunVideoOptionsMenu(s)
   while continue == 1 do
     menu = BosMenu(_("Video Options"))
     BuildVideoOptionsMenu(menu)
-    menu:addButton(_("~!OK"), "o", 
-        Video.Width / 2 - 100, 
-        Video.Height - 100, 
-        function() menu:stop() end)
     continue = menu:run()
   end 
 end
 
-function RunLanguageOptionsMenu(s)
-  local menu 
-  local b
-  local offx = (Video.Width - 352) / 2 + 100
-  local offy = (Video.Height - 352) / 2
-
-  menu = BosMenu(_("Language Selection"))
-  local function AddLanguage(language, po, h)
-    local function SetLanguage()
-      SetTranslationsFiles("languages/" .. po .. ".po",
-                          "languages/bos-" .. po .. ".po") 
-      preferences.StratagusTranslation = StratagusTranslation
-      preferences.GameTranslation = GameTranslation
-      SavePreferences()
-    end      
-    local rb = menu:addRadioButton(language, "lang", offx, offy + 36 * h, SetLanguage)
-    if StratagusTranslation == ("languages/" .. po .. ".po") then
-      rb:setMarked(true)
-    end
-    return rb
-  end
-     
-  print(StratagusTranslation)
-  b = AddLanguage("English", "en", 1.5)
-  if StratagusTranslation == "" then
-     b:setMarked(true)
-  end
-  AddLanguage("FranÃ§ais", "fr", 2.5)
-  AddLanguage("Suomi", "fi", 3.5)
-  AddLanguage("Deutsch", "de", 4.5)
-  AddLanguage("Polski", "pl", 5.5)
-  AddLanguage("Dansk", "da", 6.5)
-
-  menu:addButton(_("~!OK"), "o", Video.Width / 2 - 100, Video.Height - 100,
-    function() menu:stop() end)
-  menu:run()
-end
-
 function BuildOptionsMenu(menu)
   local x = Video.Width / 2 - 100
-  menu:addButton(_("Sound"), 0, x, 140, RunSoundOptionsMenu)
-  menu:addButton(_("Video"), 0, x, 180, function() RunVideoOptionsMenu() menu:stop(1) end)
-  menu:addButton(_("Speed"), 0, x, 220, RunSpeedOptionsMenu)
-  menu:addButton(_("Language"), 0, x, 260, function() RunLanguageOptionsMenu() menu:stop(1) end)
-
-  menu:addButton(_("~!Main menu"), "m", x, Video.Height - 100, function() menu:stop() end)
+  menu:addButton(_("Sound"), x, 140, RunSoundOptionsMenu)
+  menu:addButton(_("Video"), x, 180, function() RunVideoOptionsMenu() menu:stop(1) end)
+  menu:addButton(_("Speed"), x, 220, RunSpeedOptionsMenu)
 end
 
 function RunOptionsMenu(s)

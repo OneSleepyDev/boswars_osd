@@ -9,7 +9,7 @@
 --
 --	stratagus.lua	-	The craft configuration language.
 --
---	(c) Copyright 1998-2006 by Crestez Leonard and Francois Beerten
+--	(c) Copyright 1998-2005 by Crestez Leonard and François Beerten
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 --
 --	$Id$
 
+-- For documentation see stratagus/doc/ccl/ccl.html
 
 print("Battle of Survival default config file loading ...\n")
 
@@ -37,19 +38,25 @@ print("Battle of Survival default config file loading ...\n")
 --	Enter your default title screen.
 
 SetTitleScreens(
-      {Image="video/stratagus_intro.ogg"},
-      {Image="video/bos_intro.ogg"}
+--      {Image="video/stratagus_intro.ogg"},
+--      {Image="video/bos_intro.ogg"}
 )
+
+--	Enter your menu music.
+-- SetMenuMusic("music/title.ogg")
 
 --	Set the game name
 SetGameName("bos")
+
+--	set the default map file.
+SetDefaultMap="maps/default.smp"
 
 -------------------------------------------------------------------------------
 --	Music play list -	Insert your titles here
 -------------------------------------------------------------------------------
 playlist = {}
 local musiclist = ListFilesInDirectory("music/")
-for i,f in ipairs(musiclist) do
+for i,f in musiclist do
   if(string.find(f, ".ogg$") or string.find(f, ".wav$") or string.find(f, ".mp3$")) then 
     print("Added music file:" .. f) 
     playlist[i] = f
@@ -57,9 +64,10 @@ for i,f in ipairs(musiclist) do
 end
 
 SetSelectionStyle("corners")
-Preference.ShowSightRange = false
-Preference.ShowAttackRange = false
-Preference.ShowReactionRange = false
+Preference.SetShowSightRange = false
+Preference.SetShowAttackRange = false
+Preference.SetShowReactionRange = false
+
 Preference.ShowOrders = 2
 
 ManaSprite("general/mana2.png", 0, -1, 31, 4)
@@ -68,6 +76,9 @@ HealthSprite("general/health2.png", 0, -4, 31, 4)
 ShowHealthDot()
 ShowManaDot()
 ShowNoFull()
+
+--	Enable show tips at the start of a level
+SetShowTips(true)
 
 -------------------------------------------------------------------------------
 --	Game modification
@@ -93,17 +104,28 @@ SetClickMissile("missile-green-cross")
 --	Set the name of the missile to use when displaying damage
 SetDamageMissile("missile-hit")
 
+--	Disable grabbing the mouse.
+SetGrabMouse(false)
+
 --	Enable stopping scrolling on mouse leave.
 SetLeaveStops(true)
 
 --	Enable mouse and keyboard scrolling.
 SetMouseScroll(true)
 SetKeyScroll(true)
+SetKeyScrollSpeed(1)
+SetMouseScrollSpeed(1)
 SetMouseScrollSpeedDefault(4)
 SetMouseScrollSpeedControl(15)
 
 SetDoubleClickDelay(300)
 SetHoldClickDelay(1000)
+
+--	Enable the display of the command keys in buttons.
+SetShowCommandKey(true)
+
+--  Enable fog of war by default.
+SetFogOfWar(true)
 
 --	Enable minimap terrain by default.
 SetMinimapTerrain(true)
@@ -115,6 +137,10 @@ SetFogOfWarOpacity(128)
 --	Define default resources
 -------------------------------------------------------------------------------
 
+DefineDefaultResources(0, 2000, 1000, 1000, 1000, 1000, 1000)
+DefineDefaultResourcesLow(0, 2000, 1000, 1000, 1000, 1000, 1000)
+DefineDefaultResourcesMedium(0, 5000, 2000, 2000, 2000, 2000, 2000)
+DefineDefaultResourcesHigh(0, 10000, 5000, 5000, 5000, 5000, 5000)
 DefineDefaultIncomes(0, 100, 100, 100, 100, 100, 100)
 DefineDefaultActions("stop", "mine", "harvest", "drill", "mine", "mine", "mine")
 
@@ -127,20 +153,26 @@ DefinePlayerColorIndex(208, 4)
 DefinePlayerColors({
   "red", {{164, 0, 0}, {124, 0, 0}, {92, 4, 0}, {68, 4, 0}},
   "blue", {{12, 72, 204}, {4, 40, 160}, {0, 20, 116}, {0, 4, 76}},
+  "green", {{44, 180, 148}, {20, 132, 92}, {4, 84, 44}, {0, 40, 12}},
   "violet", {{152, 72, 176}, {116, 44, 132}, {80, 24, 88}, {44, 8, 44}},
   "orange", {{248, 140, 20}, {200, 96, 16}, {152, 60, 16}, {108, 32, 12}},
   "black", {{40, 40, 60}, {28, 28, 44}, {20, 20, 32}, {12, 12, 20}},
   "white", {{224, 224, 224}, {152, 152, 180}, {84, 84, 128}, {36, 40, 76}},
   "yellow", {{252, 252, 72}, {228, 204, 40}, {204, 160, 16}, {180, 116, 0}},
+  "red", {{164, 0, 0}, {124, 0, 0}, {92, 4, 0}, {68, 4, 0}},
+  "blue", {{12, 72, 204}, {4, 40, 160}, {0, 20, 116}, {0, 4, 76}},
   "green", {{44, 180, 148}, {20, 132, 92}, {4, 84, 44}, {0, 40, 12}},
+  "violet", {{152, 72, 176}, {116, 44, 132}, {80, 24, 88}, {44, 8, 44}},
+  "orange", {{248, 140, 20}, {200, 96, 16}, {152, 60, 16}, {108, 32, 12}},
+  "black", {{40, 40, 60}, {28, 28, 44}, {20, 20, 32}, {12, 12, 20}},
+  "white", {{224, 224, 224}, {152, 152, 180}, {84, 84, 128}, {36, 40, 76}},
+  "yellow", {{252, 252, 72}, {228, 204, 40}, {204, 160, 16}, {180, 116, 0}},
 })
 
-function InitGameVariables()
-   SetSpeeds(1)
-   InitAiScripts()
-end
+--	Chittin
+SetSpeeds(1)
 
-AStar("fixed-unit-cost", 1000, "moving-unit-cost", 4, "dont-know-unseen-terrain", "unseen-terrain-cost", 2)
+AStar("fixed-unit-cost", 1000, "moving-unit-cost", 20, "dont-know-unseen-terrain", "unseen-terrain-cost", 2)
 
 --	Maximum number of selectable units
 SetMaxSelectable(24)
@@ -158,11 +190,11 @@ SetAllPlayersTotalUnitLimit(400)
 function SinglePlayerTriggers()
   AddTrigger(
     function() return GetPlayerData(GetThisPlayer(),"TotalNumUnits") == 0 end,
-    function() return StopGame(GameDefeat) end)
+    function() return ActionDefeat() end)
 
   AddTrigger(
     function() return GetNumOpponents(GetThisPlayer()) == 0 end,
-    function() return StopGame(GameVictory) end)   
+    function() return ActionVictory() end)   
 end
 
 -------------------------------------------------------------------------------
@@ -170,63 +202,29 @@ end
 -------------------------------------------------------------------------------
 SetFogOfWarGraphics("general/fog.png")
 
-Load("preferences.lua")
-
-if (preferences == nil) then
-  preferences = {
-    VideoWidth = 800,
-    VideoHeight = 600,
-    VideoFullScreen = false,
-    PlayerName = "Player",
-    FogOfWar = true,
-    ShowCommandKey = true,
-    GroupKeys = "0123456789`",
-    GameSpeed = 30,
-    EffectsEnabled = true,
-    EffectsVolume = 128,
-    MusicEnabled = true,
-    MusicVolume = 128,
-    StratagusTranslation = "",
-    GameTranslation = "",
-    TipNumber = 0,
-    ShowTips = true,
-    GrabMouse = false,
-  }
-end
-
-SetVideoResolution(preferences.VideoWidth, preferences.VideoHeight)
-SetVideoFullScreen(preferences.VideoFullScreen)
-SetLocalPlayerName(preferences.PlayerName)
-SetFogOfWar(preferences.FogOfWar)
-UI.ButtonPanel.ShowCommandKey = preferences.ShowCommandKey
-SetGroupKeys(preferences.GroupKeys)
-SetGameSpeed(preferences.GameSpeed)
-SetEffectsEnabled(preferences.EffectsEnabled)
-SetEffectsVolume(preferences.EffectsVolume)
-SetMusicEnabled(preferences.MusicEnabled)
-SetMusicVolume(preferences.MusicVolume)
-SetTranslationsFiles(preferences.StratagusTranslation, preferences.GameTranslation)
-SetGrabMouse(preferences.GrabMouse)
-
+Load("preferences1.lua")
 
 --; Uses Stratagus Library path!
 Load("scripts/bos.lua")
 Load("scripts/icons.lua")
 Load("scripts/sound.lua")
 Load("scripts/missiles.lua")
+Load("scripts/constructions.lua")
 Load("scripts/spells.lua")
 Load("scripts/units.lua")
 Load("scripts/fonts.lua")
 Load("scripts/ui.lua")
 Load("scripts/upgrade.lua")
-Load("scripts/dependency.lua")
 Load("scripts/buttons.lua")
 Load("scripts/ai.lua")
-Load("scripts/commands.lua")
+Load("scripts/campaigns.lua")
+Load("scripts/credits.lua")
+Load("scripts/tips.lua")
+Load("scripts/ranks.lua")
+Load("scripts/menus.lua")
 Load("scripts/cheats.lua")
 Load("scripts/maps.lua")
 
-
-default_objective = _("Eliminate your enemies.")
+Load("preferences2.lua")
 
 print("... ready!")

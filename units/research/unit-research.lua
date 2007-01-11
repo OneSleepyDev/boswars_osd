@@ -73,7 +73,7 @@ DefineUnitType("unit-rfac", {
 	SightRange = 1, Armor = 30, BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 35, AnnoyComputerFactor = 45,
 	Demand = 300, Points = 200, ExplodeWhenKilled = "missile-160x128-explosion",
-	Corpse = "build-dead-research", Type = "land",
+	Corpse = {"build-dead-body4", 0}, Type = "land",
 	Building = true, BuilderOutside = true, VisibleUnderFog = true,
 	Sounds = {
 		"selected", "rfac-selected",
@@ -82,26 +82,21 @@ DefineUnitType("unit-rfac", {
 		"dead", "rfac-dead"}
 	})
 
-DefineAnimations("animations-research", {
+DefineAnimations("animations-elitebuild4", {
     Death = {"unbreakable begin", "wait 1", "frame 0", "wait 2000", 
-        "frame 1", "wait 200", "frame 2", "wait 200",  "unbreakable end", "wait 1", },
+             "unbreakable end", "wait 1", },
     })
 
-DefineUnitType("build-dead-research", {
-	Name = "RsearchCrater",
-	Image = {"file", GetCurrentLuaPath().."/research_c.png", "size", {128, 128}},
-	Animations = "animations-research", Icon = "icon-cancel",
+DefineUnitType("build-dead-body4", {
+	Name = "RfacCrater",
+	Image = {"file", GetCurrentLuaPath().."/research_facility.png", "size", {128, 128}},
+	Animations = "animations-elitebuild4", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 999, DrawLevel = 10,
 	TileSize = {4, 4}, BoxSize = {124, 124}, SightRange = 1,
 	BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
 	Priority = 0, Type = "land", Building = true, Vanishes = true
 	})
 
-DefineAllow("unit-rfac", "AAAAAAAA")
-
-DefineButton({
-	Pos = 6, Level = 1, Icon = "icon-rfac_b", Action = "build",
-	Value = "unit-rfac", Key = "f", Hint = "BUILD RESEARCH ~!FACILITY",
-	ForUnit = {"unit-engineer"}})
+DefineAllow("unit-rfac", "AAAAAAAAAAAAAAAA")
 
 

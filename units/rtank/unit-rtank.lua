@@ -52,9 +52,6 @@ DefineIcon({
 	Frame = 0,
 	File = "units/rtank/ico_rtank.png"})
 
-MakeSound("rtank-ready", GetCurrentLuaPath().."/rtank.ready.wav")
-MakeSound("rtank-help", GetCurrentLuaPath().."/rtank.underattack.wav")
-
 DefineUnitType("unit-rtank", {
 	Name = "Rocket Tank",
 	Image = {"file", "units/rtank/unit_rtank.png", "size", {96, 96}},
@@ -71,17 +68,15 @@ DefineUnitType("unit-rtank", {
 	ComputerReactionRange = 10, PersonReactionRange = 10,
 	RightMouseAction = "attack",
 	LandUnit = true, SelectableByRectangle = true, 
-	Demand = 0, CanAttack = true, CanTargetLand = true, CanTargetAir = true,
+	Demand = 0, CanAttack = true, CanTargetLand = true,
 	NumDirections = 8, MaxAttackRange = 7,
 	Sounds = {
 		"selected", "grenadier-selected",
-		"acknowledge", "grenadier-acknowledge",
-		"ready", "rtank-ready",
-		"help", "rtank-help"
-		}
+		"acknowledge", "grenadier-acknowledge"
+	}
 })
 
-DefineAllow("unit-rtank", "AAAAAAAA")
+DefineAllow("unit-rtank", "AAAAAAAAAAAAAAAA")
 DefineDependency("unit-rtank", {"unit-vfac"})
 
 DefineButton({

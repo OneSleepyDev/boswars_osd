@@ -53,11 +53,9 @@ DefineIcon({
 	Name = "icon-cam_b",
 	Size = {46, 38},
 	Frame = 0,
-	File = "units/camera/camera_i.png"})
+	File = "units/camera/camera_b.png"})
 
 MakeSound("camera-selected", "units/camera/sfx_camera.select.wav")
-MakeSound("camera-ready", GetCurrentLuaPath().."/camera.completed.wav")
-MakeSound("camera-help", GetCurrentLuaPath().."/camera.underattack.wav")
 
 DefineConstruction("construction-cam", {
 	Constructions = {
@@ -84,13 +82,10 @@ DefineUnitType("unit-cam", {
 	SightRange = 15, Armor = 0 , BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 20, AnnoyComputerFactor = 65,
 	Points = 10, Supply = 0, ExplodeWhenKilled = "missile-64x64-explosion",
-	Corpse = "camera_destroyed", Type = "land",
+	Corpse = {"camera_destroyed", 0}, Type = "land",
 	Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
-	Sounds = {"selected", "camera-selected",
-		"ready", "camera-ready",
-		"help", "camera-help"
-		}
+	Sounds = {"selected", "camera-selected"}
 })
 
 DefineUnitType("camera_destroyed", {
@@ -103,7 +98,7 @@ DefineUnitType("camera_destroyed", {
 	Priority = 0, Type = "land", Building = true, Vanishes = true
 })
 
-DefineAllow("unit-cam", "AAAAAAAA")
+DefineAllow("unit-cam", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 5, Level = 1, Icon = "icon-cam_b", Action = "build",

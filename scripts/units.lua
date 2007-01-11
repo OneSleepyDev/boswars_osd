@@ -30,31 +30,6 @@
 -- Load the animations for the units.
 Load("scripts/anim.lua")
 
-AllowedUnits = {}
-
-local oldDefineAllow = DefineAllow
-function DefineAllow(unit, access)
-   AllowedUnits[unit] = access
-end
-
-function AllowDefaultUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, default)
-   end 
-end
-
-function DisallowAllUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, "FFFFFFFF")
-   end
-end
-
-function AllowAllUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, "AAAAAAAA")
-   end
-end
-
 function DefineCommonButtons(forUnits) 
    DefineButton({
         Pos = 1, Level = 0, Icon = "icon-move",
@@ -81,15 +56,10 @@ DefineAnimations("animations-elitecorpse1", {
         "frame 0", "wait 200", "frame 5", "wait 200", "frame 10", "wait 200", 
         "frame 15", "wait 200", "frame 15", "wait 1", "unbreakable end", "wait 1", },
     })
-
-function DefineHumanCorpse(livingunit, size)
-   if (size == nil) then
-    size = {64, 64}
-   end
-
+function DefineHumanCorpse(livingunit)
    DefineUnitType("unit-dead-" .. livingunit, {
 	Name = livingunit .. "body",
-	Image = {"file", GetCurrentLuaPath().."/unit_" .. livingunit .. "_c.png", "size", size},
+	Image = {"file", GetCurrentLuaPath().."/unit_" .. livingunit .. "_c.png", "size", {64, 64}},
 	Animations = "animations-elitecorpse1", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 999, DrawLevel = 10, TileSize = {1, 1},
 	BoxSize = {31, 31}, SightRange = 1, BasicDamage = 0,
@@ -151,13 +121,42 @@ DefineUnitType("unit-revealer", {
 	SightRange = 12,
 	BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
 	Priority = 0, DecayRate = 1, Type = "land",
-	Building = true, Revealer = true})
+	Building = true, Revealer = true, DetectCloak = true})
 
+-- Needed for stratagus otherwise it crashes
+DefineUnitType("unit-human-wall", {
+	Name = "Wall",
+	Image = {"file", "neutral/wall.png", "size", {32, 32}},
+	Costs = {"time", 30},
+	Animations = "animations-building", Icon = "icon-cancel",
+	Construction = "construction-wall",
+	Speed = 0, HitPoints = 40, DrawLevel = 39,
+	TileSize = {1, 1}, BoxSize = {31, 31}, SightRange = 1,
+	Armor = 20, BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
+	Priority = 0, AnnoyComputerFactor = 45, Points = 1,
+	Corpse = {"unit-destroyed-1x1-place", 0},
+	ExplodeWhenKilled = "missile-explosion",
+	Type = "land", Building = true})
+
+-- Needed to avoid a stratagus crash
+DefineUnitType("unit-orc-wall", {
+	Name = "Wall", 
+	Image = {"file", "neutral/wall.png", "size", {32, 32}},
+	Costs = {"time", 30},
+	Animations = "animations-building", Icon = "icon-cancel",
+	Construction = "construction-wall",
+	Speed = 0, HitPoints = 40, DrawLevel = 39,
+	TileSize = {1, 1}, BoxSize = {31, 31}, SightRange = 1,
+	Armor = 20, BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
+	Priority = 0, AnnoyComputerFactor = 45, Points = 1,
+	Corpse = {"unit-destroyed-1x1-place", 0},
+	ExplodeWhenKilled = "missile-explosion",
+	Type = "land", Building = true})
 
 -- Load production buildings
 Load("units/vault/vault.lua")
 Load("units/engineer/engineer.lua")
-Load("units/vehiclefactory/vehiclefactory.lua")
+Load("units/vehiculefactory/vehiculefactory.lua")
 
 -- Find and load all other units
 local list
@@ -166,11 +165,11 @@ local f
 local ff
 
 list = ListDirsInDirectory("units/")
-for i,f in ipairs(list) do
+for i,f in list do
   if not(string.find(f, "^%.")) then
      local subdirlist = ListFilesInDirectory("units/" .. f)
-     for ii,ff in ipairs(subdirlist) do
-        if (string.find(ff, "^unit-.*%.lua$")) then
+     for i, ff in subdirlist do
+        if(string.find(ff, "^unit-.*%.lua$")) then
           print("Loading unit: " .. ff)
           Load("units/"..f.."/"..ff)
         end
@@ -178,6 +177,3 @@ for i,f in ipairs(list) do
   end
 end
 
--- restore the old DefineAllow function
--- TODO: use another name in the unit scripts
-DefineAllow = oldDefineAllow

@@ -9,7 +9,7 @@
 --
 --	icons.lua	-	Define the icons.
 --
---	(c) Copyright 2003-2006 by Jimmy Salmon and Crestez Leonard.
+--	(c) Copyright 2003-2005 by Jimmy Salmon and Crestez Leonard.
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -31,44 +31,44 @@
 DefineIcon({
 	Name = "icon-gen_b",
 	Size = {46, 38},
-	Frame = 0,
-	File = "units/generator/generator_i.png"})
+	Frame = 1,
+	File = "elites/units/engineer_icons.png"})
 
 DefineIcon({
 	Name = "icon-camp_b",
 	Size = {46, 38},
-	Frame = 0,
-	File = "units/camp/training_camp_i.png"})
+	Frame = 2,
+	File = "elites/units/engineer_icons.png"})
 
 DefineIcon({
 	Name = "icon-dev_b",
 	Size = {46, 38},
 	Frame = 0,
-	File = "units/developmentyard/development_yard_i.png"})
+	File = "elites/units/engineer_icons.png"})
 
 DefineIcon({
 	Name = "icon-rfac_b",
 	Size = {46, 38},
-	Frame = 0,
-	File = "units/research/research_facility_i.png"})
+	Frame = 6,
+	File = "elites/units/engineer_icons.png"})
 
 DefineIcon({
 	Name = "icon-hosp_b",
 	Size = {46, 38},
-	Frame = 0,
-	File = "units/hospital/hospital_i.png"})
+	Frame = 7,
+	File = "elites/units/engineer_icons.png"})
 
 DefineIcon({
 	Name = "icon-vfac_b",
 	Size = {46, 38},
-	Frame = 0,
-	File = "units/vehiclefactory/vehicle_factory_i.png"})
+	Frame = 8,
+	File = "elites/units/engineer_icons.png"})
 
 DefineIcon({
 	Name = "icon-msilo_b",
 	Size = {46, 38},
-	Frame = 0,
-	File = "units/missilesilo/missile_silo_i.png"})
+	Frame = 9,
+	File = "elites/units/engineer_icons.png"})
 
 -- upgrades
 DefineIcon({
@@ -100,6 +100,12 @@ DefineIcon({
 	Size = {46, 38},
 	Frame = 0,
 	File = "elites/research/res_pdril.png"})
+
+DefineIcon({
+	Name = "icon-void",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/research/res_avoid.png"})
 
 DefineIcon({
 	Name = "icon-build-lvl1",

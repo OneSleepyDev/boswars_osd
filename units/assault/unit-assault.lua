@@ -74,8 +74,8 @@ DefineUnitType("unit-assault", {
 	SightRange = 6, ComputerReactionRange = 6, PersonReactionRange = 6,
 	Armor = 3, BasicDamage = 4, PiercingDamage = 0, Missile = "missile-none",
 	MaxAttackRange = 5, Priority = 60, Points = 50,
-	Corpse = "unit-dead-body1", Type = "land", Demand = 0,
-	CanAttack = true, CanTargetLand = true, CanTargetAir = true,
+	Corpse = {"unit-dead-body1", 0}, Type = "land", Demand = 0,
+	CanAttack = true, CanTargetLand = true,
 	LandUnit = true, organic = true, SelectableByRectangle = true,
 	Sounds = {
 		"selected", "assault-selected",
@@ -86,4 +86,4 @@ DefineUnitType("unit-assault", {
 	})
 DefineHumanCorpse("assault")
 
-DefineAllow("unit-assault", "AAAAAAAA")
+DefineAllow("unit-assault", "AAAAAAAAAAAAAAAA")

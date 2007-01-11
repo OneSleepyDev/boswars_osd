@@ -61,9 +61,6 @@ DefineIcon({
 	Frame = 0,
 	File = "units/artil/ico_artil.png"})
 
-MakeSound("artil-ready", GetCurrentLuaPath().."/artil.ready.wav")
-MakeSound("artil-help", GetCurrentLuaPath().."/artil.underattack.wav")
-
 DefineUnitType("unit-artil", {
 	Name = "Artil",
 	Image = {"file", "units/artil/unit_artil.png", "size", {160, 160}},
@@ -83,13 +80,10 @@ DefineUnitType("unit-artil", {
 	LandUnit = true, SelectableByRectangle = true, 
 	Demand = 50, CanAttack = true, CanTargetLand = true,
 	NumDirections = 8, MaxAttackRange = 8,
-	Sounds = {
-		"ready", "artil-ready",
-		"help", "artil-help"
-		}
+	Sounds = {}
 })
 
-DefineAllow("unit-artil", "AAAAAAAA")
+DefineAllow("unit-artil", "AAAAAAAAAAAAAAAA")
 DefineDependency("unit-artil", {"unit-vfac"})
 
 DefineCommonButtons({"unit-artil"})

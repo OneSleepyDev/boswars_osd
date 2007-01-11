@@ -94,7 +94,7 @@ DefineUnitType("unit-medic", {
 	SightRange = 3, ComputerReactionRange = 6, PersonReactionRange = 6,
 	Armor = 1, BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
 	MaxAttackRange = 1, Priority = 60, Points = 50,
-	Corpse = "unit-dead-body5",
+	Corpse = {"unit-dead-body5", 0},
 	Type = "land", CanTargetLand = true,
 	LandUnit = true, Demand = 0, organic = true,
 	SelectableByRectangle = true,
@@ -109,7 +109,7 @@ DefineUnitType("unit-medic", {
 	})
 DefineHumanCorpse("medic")
 
-DefineAllow("unit-medic", "AAAAAAAA")
+DefineAllow("unit-medic", "AAAAAAAAAAAAAAAA")
 DefineDependency("unit-medic", {"unit-hosp"})
 
 DefineButton({

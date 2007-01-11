@@ -7,9 +7,9 @@
 --  Invasion - Battle of Survival                  
 --   A GPL'd futuristic RTS game
 --
---      cheats.lua - Cheats
+--      wc2.lua - WC2 compatibility level
 --
---      (c) Copyright 2001-2006 by Lutz Sammer and Jimmy Salmon
+--      (c) Copyright 2001-2004 by Lutz Sammer and Jimmy Salmon
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -33,14 +33,21 @@ godcheat = false
 function HandleCheats(str)
   local resources = { "titanium", "crystal" }
 
-  if (str == "rich") then
+  if (str == "there is no aliens level") then
+    -- FIXME: no function yet
+    AddMessage("cheat enabled")
+
+  elseif (str == "glittering prizes") then
     SetPlayerData(GetThisPlayer(), "Resources", "titanium",
       GetPlayerData(GetThisPlayer(), "Resources", "titanium") + 12000)
     SetPlayerData(GetThisPlayer(), "Resources", "crystal",
       GetPlayerData(GetThisPlayer(), "Resources", "crystal") + 5000)
     AddMessage("!!! :)")
 
-  elseif (str == "reveal") then
+  elseif (str == "on screen") then
+    RevealMap()
+
+  elseif (str == "showpath") then
     RevealMap()
 
   elseif (str == "fow on") then
@@ -48,10 +55,6 @@ function HandleCheats(str)
 
   elseif (str == "fow off") then
     SetFogOfWar(false)
- 
-  elseif (str == "see all") then
-    SetFogOfWar(false)
-    RevealMap()
 
   elseif (str == "fast debug") then
     for i = 1,table.getn(resources) do
@@ -75,7 +78,7 @@ function HandleCheats(str)
     SetSpeedResearch(1)
     AddMessage("NORMAL DEBUG SPEED")
 
-  elseif (str == "speed cheat") then
+  elseif (str == "make it so") then
     if (speedcheat) then
       speedcheat = false
       for i = 1,table.getn(resources) do
@@ -104,16 +107,13 @@ function HandleCheats(str)
       AddMessage("SO!")
     end
 
-  elseif (str == "victory") then
-    StopGame(GameVictory)
+  elseif (str == "unite the clans") then
+    ActionVictory()
 
-  elseif (str == "defeat") then
-    StopGame(GameDefeat)
+  elseif (str == "you pitiful worm") then
+    ActionDefeat()
 
-  elseif (str == "draw") then
-    StopGame(GameDraw)
-
-  elseif (str == "godcheat") then
+  elseif (str == "it is a good day to die") then
     if (godcheat) then
       godcheat = false
       SetGodMode(false)
@@ -125,8 +125,9 @@ function HandleCheats(str)
     end
 
   elseif (str == "fill mana") then
-    for i = 0,ThisPlayer.TotalNumUnits-1 do
-      SetUnitVariable(ThisPlayer.Units[i].Slot, "Mana", 255)
+    t = GetUnits("this");
+    for i = 1,table.getn(t) do
+      SetUnitMana(t[i], 255)
     end
 
   else

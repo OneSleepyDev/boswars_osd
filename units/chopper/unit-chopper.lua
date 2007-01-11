@@ -9,7 +9,7 @@
 --
 --	unit-chopper.lua	-	Define the chopper unit.
 --
---	(c) Copyright 2005-2006 by Francois Beerten.
+--	(c) Copyright 2005 by François Beerten.
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -31,15 +31,15 @@ DefineAnimations("animations-chopper", {
     Still = {"frame 0", "wait 10", "frame 0", "wait 10", "frame 0", "wait 600",
             "frame 0", "wait 10", "frame 0", "wait 300", 
             "rotate 1", "wait 10",},
-    Move = {"unbreakable begin", "frame 10", "move 2", "wait 1",
-        "frame 10", "move 2", "wait 1", "frame 10", "move 2", "wait 1",
-        "frame 5", "move 2", "wait 1", "frame 5", "move 2", "wait 1",
-        "frame 10", "move 2", "wait 1", "frame 10", "move 2", "wait 1",
-        "frame 5", "move 2", "wait 1", "frame 5", "move 2", "wait 1",
-        "frame 10", "move 2", "wait 1", "frame 10", "move 2", "wait 1",
-        "frame 5", "move 2", "wait 1", "frame 5", "move 2", "wait 1",
-        "frame 10", "move 2", "wait 1", "frame 10", "move 2", "wait 1",
-        "frame 5", "move 2", "unbreakable end", "wait 1", },
+    Move = {"unbreakable begin", "frame 15", "move 2", "wait 0",
+        "frame 10", "move 2", "wait 0", "frame 10", "move 2", "wait 0",
+        "frame 15", "move 2", "wait 0", "frame 15", "move 2", "wait 0",
+        "frame 10", "move 2", "wait 0", "frame 10", "move 2", "wait 0",
+        "frame 15", "move 2", "wait 0", "frame 15", "move 2", "wait 0",
+        "frame 10", "move 2", "wait 0", "frame 10", "move 2", "wait 0",
+        "frame 15", "move 2", "wait 0", "frame 15", "move 2", "wait 0",
+        "frame 10", "move 2", "wait 0", "frame 10", "move 2", "wait 0",
+        "frame 15", "move 2", "unbreakable end", "wait 0", },
     Attack = {"unbreakable begin", "frame 0", "wait 4", 
         "frame 5", "sound bazoo-attack", "attack", "wait 1", 
         "frame 0", "wait 2", 
@@ -55,17 +55,14 @@ DefineIcon({
 	Frame = 0,
 	File = "units/chopper/ico_chopper.png"})
 
-MakeSound("chopper-ready", GetCurrentLuaPath().."/chopper.ready.wav")
-MakeSound("chopper-help", GetCurrentLuaPath().."/chopper.underattack.wav")
-
 DefineUnitType("unit-chopper", {
 	Name = "Chopper",
 	Image = {"file", "units/chopper/unit_chopper.png", "size", {128,128}},
 	Shadow = {"file", "units/chopper/unit_chopper_s.png", "size", {128, 128}, "offset", {5,128}}, 
 	Animations = "animations-chopper", Icon = "icon-chopper",
 	Flip = false,
-	Costs = {"time", 100, "titanium", 150, "crystal", 450},
-	RepairCosts = {"crystal", 6},
+	Costs = {"time", 100, "titanium", 100, "crystal", 150},
+	RepairHp = 1, RepairCosts = {"crystal", 6},
 	Speed = 40, HitPoints = 50, DrawLevel = 125, TileSize  = {1, 1}, BoxSize = {64, 64},
 	SightRange = 7, Armor = 20, BasicDamage = 5, PiercingDamage = 30,
 	Missile = "missile-bazoo", Priority = 20, AnnoyComputerFactor = 65,
@@ -74,22 +71,20 @@ DefineUnitType("unit-chopper", {
 	ComputerReactionRange = 10, PersonReactionRange = 10,
 	RightMouseAction = "attack",
 	AirUnit = true, SelectableByRectangle = true, 
-	Demand = 0, CanAttack = true, CanTargetLand = true, CanTargetAir = true,
+	Demand = 0, CanAttack = true, CanTargetLand = true,
 	NumDirections = 8, MaxAttackRange = 7,
 	Sounds = {
 		"selected", "grenadier-selected",
-		"acknowledge", "grenadier-acknowledge",
-		"ready", "chopper-ready",
-		"help", "chopper-help"
+		"acknowledge", "grenadier-acknowledge"
 	}
 })
 
-DefineAllow("unit-chopper", "AAAAAAAA")
+DefineAllow("unit-chopper", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
-	Pos = 3, Level = 0, Icon = "icon-chopper", Action = "train-unit",
-	Value = "unit-chopper", Key = "c", Hint = "BUILD ~!CHOPPER",
-	ForUnit = {"unit-dev-yard"}})
+	Pos = 7, Level = 0, Icon = "icon-chopper", Action = "train-unit",
+	Value = "unit-chopper", Key = "c", Hint = "BUILD ~!Chopper",
+	ForUnit = {"unit-vfac"}})
 
 DefineCommonButtons({"unit-chopper"})
 

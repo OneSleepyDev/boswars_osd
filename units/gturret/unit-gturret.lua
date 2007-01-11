@@ -1,11 +1,12 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--			  T H E   W A R   B E G I N S
+--	   Stratagus - A free fantasy real time strategy game engine
 --
 --	unit-gturret.lua	-	Define the gun turret unit.
 --
@@ -43,7 +44,7 @@ DefineIcon({
 DefineIcon({
 	Name = "icon-gturret_b",
 	Size = {46, 38},
-	Frame = 0,
+	Frame = 10,
 	File = "units/gturret/gturret_i.png"})
 
 DefineConstruction("construction-gturret", {
@@ -73,41 +74,17 @@ DefineUnitType("unit-gturret", {
 	BasicDamage = 4, PiercingDamage = 0, MaxAttackRange = 6, Missile = "missile-none",
 	Priority = 20, AnnoyComputerFactor = 45, Points = 100,
 	ExplodeWhenKilled = "missile-160x128-explosion", RightMouseAction = "attack",
-	CanAttack = true, CanTargetLand = true, CanTargetAir = true,
-	NumDirections = 8, Flip = false,
-	Corpse = "build-dead-gturret", Type = "land",
-	Building = true, BuilderOutside = true,
+	CanAttack = true, CanTargetLand = true, NumDirections = 8, Flip = false,
+	Corpse = {"build-dead-body2", 0}, Type = "land",
+	--[[MustBuildOnTop = "unit-plate1", --]] Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
-	Sounds = {
-		"selected", "gturret-selected",
-		"ready", "gturret-ready",
-		"help", "gturret-help"
-		}
+	Sounds = {"selected", "gturret-selected",}
 })
 
-MakeSound("gturret-selected", GetCurrentLuaPath().."/gturret_select.wav")
-MakeSound("gturret-attack", GetCurrentLuaPath().."/gturret_attack.wav")
-MakeSound("gturret-ready", GetCurrentLuaPath().."/gturret.completed.wav")
-MakeSound("gturret-help", GetCurrentLuaPath().."/gturret.underattack.wav")
+MakeSound("gturret-selected", "units/gturret/gturret_select.wav")
+MakeSound("gturret-attack", "units/gturret/gturret_attack.wav")
 
-DefineAnimations("animations-dead-gturret", {
-    Death = {"unbreakable begin", "wait 1", "frame 0", "wait 2000", 
-        "frame 1", "wait 200", "frame 2", "wait 200", "frame 2", "wait 1", 
-        "unbreakable end", "wait 1", },
-    })
-
-DefineUnitType("build-dead-gturret", {
-	Name = "GturretCrater",
-	Image = {"file", GetCurrentLuaPath().."/gturret_c.png", "size", {96, 96}},
-	Animations = "animations-dead-gturret", Icon = "icon-cancel",
-	Speed = 0, HitPoints = 999, DrawLevel = 10,
-	TileSize = {2, 2}, BoxSize = {220, 156}, SightRange = 1,
-	BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
-	Priority = 0, Type = "land", Building = true, Vanishes = true
-	})
-
-
-DefineAllow("unit-gturret", "AAAAAAAA")
+DefineAllow("unit-gturret", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 2, Level = 3, Icon = "icon-gturret_b", Action = "build",

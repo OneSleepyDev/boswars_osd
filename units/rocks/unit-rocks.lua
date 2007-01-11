@@ -42,7 +42,7 @@ DefineConstruction("construction-rocks", {
 -- rock-1
 
 DefineUnitType("unit-rock-1", {
-	Name = "rock-1",
+	Name = "rocks",
 	Image = {"file", "units/rocks/rock_1.png", "size", {96, 96}},
 	Shadow = {"file", "units/rocks/rock_1s.png", "size", {96, 96}},
 	Animations = "animations-rocks", 
@@ -59,7 +59,7 @@ DefineUnitType("unit-rock-1", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -74,12 +74,12 @@ DefineIcon({
 	Frame = 0,
 	File = "units/rocks/rock_1i.png"})
 
-DefineAllow("unit-rock-1", "AAAAAAAA")
+DefineAllow("unit-rock-1", "AAAAAAAAAAAAAAAA")
 
 -- rock-2
 
 DefineUnitType("unit-rock-2", {
-	Name = "rock-2",
+	Name = "rocks",
 	Image = {"file", "units/rocks/rock_2.png", "size", {96, 96}},
 	Shadow = {"file", "units/rocks/rock_2s.png", "size", {96, 96}},
 	Animations = "animations-rocks", 
@@ -96,7 +96,7 @@ DefineUnitType("unit-rock-2", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -111,12 +111,12 @@ DefineIcon({
 	Frame = 0,
 	File = "units/rocks/rock_2i.png"})
 
-DefineAllow("unit-rock-2", "AAAAAAAA")
+DefineAllow("unit-rock-2", "AAAAAAAAAAAAAAAA")
 
 -- rock-3
 
 DefineUnitType("unit-rock-3", {
-	Name = "rock-3",
+	Name = "rocks",
 	Image = {"file", "units/rocks/rock_3.png", "size", {96, 96}},
 	Shadow = {"file", "units/rocks/rock_3s.png", "size", {96, 96}},
 	Animations = "animations-rocks", 
@@ -133,7 +133,7 @@ DefineUnitType("unit-rock-3", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -148,12 +148,12 @@ DefineIcon({
 	Frame = 0,
 	File = "units/rocks/rock_3i.png"})
 
-DefineAllow("unit-rock-3", "AAAAAAAA")
+DefineAllow("unit-rock-3", "AAAAAAAAAAAAAAAA")
 
 -- rock-4
 
 DefineUnitType("unit-rock-4", {
-	Name = "rock-4",
+	Name = "rocks",
 	Image = {"file", "units/rocks/rock_4.png", "size", {96, 96}},
 	Shadow = {"file", "units/rocks/rock_4s.png", "size", {96, 96}},
 	Animations = "animations-rocks", 
@@ -170,7 +170,7 @@ DefineUnitType("unit-rock-4", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -185,12 +185,12 @@ DefineIcon({
 	Frame = 0,
 	File = "units/rocks/rock_4i.png"})
 
-DefineAllow("unit-rock-4", "AAAAAAAA")
+DefineAllow("unit-rock-4", "AAAAAAAAAAAAAAAA")
 
 -- rock-5
 
 DefineUnitType("unit-rock-5", {
-	Name = "rock-5",
+	Name = "rocks",
 	Image = {"file", "units/rocks/rock_5.png", "size", {96, 96}},
 	Shadow = {"file", "units/rocks/rock_5s.png", "size", {96, 96}},
 	Animations = "animations-rocks", 
@@ -207,7 +207,7 @@ DefineUnitType("unit-rock-5", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -222,12 +222,12 @@ DefineIcon({
 	Frame = 0,
 	File = "units/rocks/rock_5i.png"})
 
-DefineAllow("unit-rock-5", "AAAAAAAA")
+DefineAllow("unit-rock-5", "AAAAAAAAAAAAAAAA")
 
 -- rock-6
 
 DefineUnitType("unit-rock-6", {
-	Name = "rock-6",
+	Name = "rocks",
 	Image = {"file", "units/rocks/rock_6.png", "size", {96, 96}},
 	Shadow = {"file", "units/rocks/rock_6s.png", "size", {96, 96}},
 	Animations = "animations-rocks", 
@@ -244,7 +244,7 @@ DefineUnitType("unit-rock-6", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -259,6 +259,6 @@ DefineIcon({
 	Frame = 0,
 	File = "units/rocks/rock_6i.png"})
 
-DefineAllow("unit-rock-6", "AAAAAAAA")
+DefineAllow("unit-rock-6", "AAAAAAAAAAAAAAAA")
 
 
