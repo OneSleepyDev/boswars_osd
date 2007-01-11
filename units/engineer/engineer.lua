@@ -70,15 +70,15 @@ MakeSound("engineer-harvest", GetCurrentLuaPath().."/engineer_attack.wav")
 
 DefineUnitType("unit-engineer", {
 	Name = "Engineer",
-	Image = {"file", GetCurrentLuaPath().."/unit_engineer.png", "size", {56, 56}},
-	Shadow = {"file", GetCurrentLuaPath().."/unit_engineer_s.png", "size", {56, 56}},
+	Image = {"file", GetCurrentLuaPath().."/unit_engineer.png", "size", {64, 64}},
+	Shadow = {"file", GetCurrentLuaPath().."/unit_engineer_s.png", "size", {64, 64}},
 	DrawLevel = 19, Animations = "animations-engineer", Icon = "icon-engineer",
 	Costs = {"time", 50, "titanium", 50, "crystal", 100},
 	Speed = 8, HitPoints = 30, DrawLevel = 25,
 	TileSize = {1, 1}, BoxSize = {17, 28},
 	SightRange = 5, ComputerReactionRange = 6, PersonReactionRange = 4,
 	Armor = 1, BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
-	MaxAttackRange = 1, Priority = 50, Points = 30, Corpse = "unit-dead-body2",
+	MaxAttackRange = 1, Priority = 50, Points = 30, Corpse = {"unit-dead-body2", 0},
 	Type = "land", Demand = 0, RightMouseAction = "harvest", RepairRange = 1,
 	CanTargetLand = true, LandUnit = true, Coward = true,
 	CanGatherResources = {{
@@ -107,6 +107,6 @@ DefineUnitType("unit-engineer", {
 		"help", "engineer-help",
 		"dead", "engineer-die"}
 	})
-DefineHumanCorpse("engineer", {56, 56})
+DefineHumanCorpse("engineer")
 
-DefineAllow("unit-engineer", "AAAAAAAA")
+DefineAllow("unit-engineer", "AAAAAAAAAAAAAAAA")

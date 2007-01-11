@@ -74,4 +74,4 @@ greenMountain(48, 48)
 greenMountain(18, 48)
 
 
-Editor.TerrainEditable = false
+SetTerrainEditable(false)

@@ -9,7 +9,7 @@
 --
 --	icons.lua	-	Define the icons.
 --
---	(c) Copyright 2003-2006 by Jimmy Salmon and Crestez Leonard.
+--	(c) Copyright 2003-2005 by Jimmy Salmon and Crestez Leonard.
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ DefineIcon({
 	Name = "icon-vfac_b",
 	Size = {46, 38},
 	Frame = 0,
-	File = "units/vehiclefactory/vehicle_factory_i.png"})
+	File = "units/vehiculefactory/vehicle_factory_i.png"})
 
 DefineIcon({
 	Name = "icon-msilo_b",
@@ -100,6 +100,12 @@ DefineIcon({
 	Size = {46, 38},
 	Frame = 0,
 	File = "elites/research/res_pdril.png"})
+
+DefineIcon({
+	Name = "icon-void",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/research/res_avoid.png"})
 
 DefineIcon({
 	Name = "icon-build-lvl1",

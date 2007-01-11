@@ -66,7 +66,7 @@ DefineUnitType("unit-dev-yard", {
 	SightRange = 4, Armor = 30, BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 35, AnnoyComputerFactor = 45,
 	Points = 200, Supply = 200, ExplodeWhenKilled = "missile-288x288-explosion",
-	Corpse = "build-dead-devyard", Type = "land",
+	Corpse = {"build-dead-devyard", 0}, Type = "land",
 	VisibleUnderFog = true,	Building = true, BuilderOutside = true,
 	Sounds = {
 		"selected", "dev-selected",
@@ -90,7 +90,7 @@ DefineUnitType("build-dead-devyard", {
 	Missile = "missile-none", Priority = 0, Type = "land",
 	Building = true, Vanishes = true, Sounds = {}})
 
-DefineAllow("unit-dev-yard", "AAAAAAAA")
+DefineAllow("unit-dev-yard", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 7, Level = 2, Icon = "icon-dev_b", Action = "build",

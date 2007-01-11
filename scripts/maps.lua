@@ -29,10 +29,12 @@
 --
 
 function DefineImageTilemodels(terrain, imgx, imgy)
-   local til = {}
-
-   for i = 0, imgx * imgy - 1 do
-      til[i + 1] = i
+   local til
+   local imgsize
+   til = {}
+   imgsize = imgx * imgy - 1
+   for i = 0, imgsize do
+      til[i+1] = i
    end
 
    DefineTileset(
@@ -47,16 +49,16 @@ function DefineImageTilemodels(terrain, imgx, imgy)
 end
 
 function RepeatMap(mapx, mapy, imgx, imgy)
-  -- Tile map
-  for y = 0, mapy - 1 do
-    for x = 0, mapx - 1 do
-      SetTile(math.mod(x, imgx) + math.mod(y, imgy) * imgx, x, y)
-    end
-  end
+   -- Tile map
+   for x = 0,mapx-1 do
+     for y = 0,mapy-1 do
+       SetTile( math.mod(y, imgx) + math.mod(x,imgx)*imgx, y, x)
+     end
+   end
 
-  -- The terrain of image based maps shouldnt be editable by the stratagus 
-  -- builtin editor and the editor shouldn't try to write the tiles map
-  Editor.TerrainEditable = false
+   -- The terrain of image based maps shouldnt be editable by the stratagus 
+   -- builtin editor and the editor shouldn't try to write the tiles map
+   SetTerrainEditable(false) 
 end
 
 

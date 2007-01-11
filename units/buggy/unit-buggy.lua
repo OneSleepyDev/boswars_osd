@@ -37,18 +37,18 @@ DefineAnimations("animations-dead_buggy", {
  
 DefineAnimations("animations-buggy", {
     Still = {"frame 0", "wait 1", },
-    Move = {"unbreakable begin",        "frame  0", "move 2", "wait 1",
-        "frame  0", "move 2", "wait 1", "frame  0", "move 2", "wait 1", 
-        "frame  0", "move 2", "wait 1", "frame  5", "move 2", "wait 1", 
-        "frame  5", "move 2", "wait 1", "frame 10", "move 2", "wait 1", 
-        "frame 10", "move 2", "wait 1", "frame  0", "move 2", "wait 1", 
-        "frame  0", "move 2", "wait 1", "frame  0", "move 2", "wait 1", 
-        "frame  0", "move 2", "wait 1", "frame 15", "move 2", "wait 1", 
+    Move = {"unbreakable begin", "frame 0", "move 2", "wait 1",
+        "frame 0", "move 2", "wait 1", "frame 0", "move 2", "wait 1", 
+        "frame 0", "move 2", "wait 1", "frame 5", "move 2", "wait 1", 
+        "frame 5", "move 2", "wait 1", "frame 10", "move 2", "wait 1", 
+        "frame 10", "move 2", "wait 1", "frame 0", "move 2", "wait 1", 
+        "frame 0", "move 2", "wait 1", "frame 0", "move 2", "wait 1", 
+        "frame 0", "move 2", "wait 1", "frame 15", "move 2", "wait 1", 
         "frame 15", "move 2", "wait 1", "frame 20", "move 2", "wait 1", 
         "frame 20", "move 2", "unbreakable end", "wait 1", },
     Attack = {"unbreakable begin", "frame 0", "wait 10", 
         "frame 25", "sound assault-attack", "attack", "wait 1", 
-        "frame  0", "unbreakable end", "wait 1", },
+        "frame 0", "unbreakable end", "wait 1", },
     Death = {"unbreakable begin", "frame 30", "unbreakable end", "wait 1", },
     })
 
@@ -93,7 +93,7 @@ DefineUnitType("unit-buggy", {
 	Armor = 3 , BasicDamage = 5, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 20, AnnoyComputerFactor = 45,
 	Points = 100, Supply = 0, ExplodeWhenKilled = "missile-64x64-explosion",
-	Corpse = "buggy_destroyed", Type = "land",
+	Corpse = {"buggy_destroyed", 0}, Type = "land",
 	MaxAttackRange = 6, CanAttack = true, CanTargetLand = true,
 	RightMouseAction = "attack",
 	LandUnit = true, SelectableByRectangle = true,
@@ -106,7 +106,7 @@ DefineUnitType("unit-buggy", {
 		"dead",        "buggy-die"}
 })
 
-DefineAllow("unit-buggy", "AAAAAAAA")
+DefineAllow("unit-buggy", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 3, Level = 0, Icon = "icon-buggy", Action = "train-unit",

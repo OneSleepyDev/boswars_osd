@@ -69,7 +69,7 @@ DefineUnitType("unit-hosp", {
 	BoxSize = {192, 160}, SightRange = 2, Armor = 30, BasicDamage = 0,
 	PiercingDamage = 0, Missile = "missile-none", Priority = 35,
 	AnnoyComputerFactor = 45, Demand = 200, Points = 200,
-	ExplodeWhenKilled = "missile-160x128-explosion", Corpse = "build-dead-hosp",
+	ExplodeWhenKilled = "missile-160x128-explosion", Corpse = {"build-dead-hosp", 0},
 	Type = "land", Building = true, BuilderOutside = true, VisibleUnderFog = true,
 	Sounds = {
 		"selected", "hosp-selected",
@@ -93,7 +93,7 @@ DefineUnitType("build-dead-hosp", {
 	Priority = 0, Type = "land", Building = true, Vanishes = true
 	})
 
-DefineAllow("unit-hosp", "AAAAAAAA")
+DefineAllow("unit-hosp", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 2, Level = 2, Icon = "icon-hosp_b", Action = "build",
