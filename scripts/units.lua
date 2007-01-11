@@ -38,20 +38,20 @@ function DefineAllow(unit, access)
 end
 
 function AllowDefaultUnits()
-   for unit, default in pairs(AllowedUnits) do
+   for unit, default in AllowedUnits do
       DefineAllow(unit, default)
    end 
 end
 
 function DisallowAllUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, "FFFFFFFF")
+   for unit, default in AllowedUnits do
+      DefineAllow(unit, "FFFFFFFFFFFFFFFF")
    end
 end
 
 function AllowAllUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, "AAAAAAAA")
+   for unit, default in AllowedUnits do
+      DefineAllow(unit, "AAAAAAAAAAAAAAAA")
    end
 end
 
@@ -151,7 +151,7 @@ DefineUnitType("unit-revealer", {
 	SightRange = 12,
 	BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
 	Priority = 0, DecayRate = 1, Type = "land",
-	Building = true, Revealer = true})
+	Building = true, Revealer = true, DetectCloak = true})
 
 
 -- Load production buildings
@@ -166,11 +166,11 @@ local f
 local ff
 
 list = ListDirsInDirectory("units/")
-for i,f in ipairs(list) do
+for i,f in list do
   if not(string.find(f, "^%.")) then
      local subdirlist = ListFilesInDirectory("units/" .. f)
-     for ii,ff in ipairs(subdirlist) do
-        if (string.find(ff, "^unit-.*%.lua$")) then
+     for i, ff in subdirlist do
+        if(string.find(ff, "^unit-.*%.lua$")) then
           print("Loading unit: " .. ff)
           Load("units/"..f.."/"..ff)
         end

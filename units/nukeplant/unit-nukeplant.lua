@@ -96,7 +96,7 @@ DefineUnitType("build-dead-nuke", {
 	})
 
 
-DefineAllow("unit-nuke", "AAAAAAAA")
+DefineAllow("unit-nuke", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 7, Level = 1, Icon = "icon-nuke", Action = "build",

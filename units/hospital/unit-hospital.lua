@@ -93,7 +93,7 @@ DefineUnitType("build-dead-hosp", {
 	Priority = 0, Type = "land", Building = true, Vanishes = true
 	})
 
-DefineAllow("unit-hosp", "AAAAAAAA")
+DefineAllow("unit-hosp", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 2, Level = 2, Icon = "icon-hosp_b", Action = "build",

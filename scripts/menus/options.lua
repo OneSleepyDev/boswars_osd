@@ -159,6 +159,9 @@ function RunSoundOptionsMenu(s)
 
   AddSoundOptions(menu, offx, offy, offx + 130 - 200/2, offy + 352)
 
+  menu:addButton(_("~!OK"), "o", offx + 128 - (200 / 2), offy + 245,
+    function() menu:stop() end)
+
   menu:run()
 end
 
@@ -255,7 +258,6 @@ function RunLanguageOptionsMenu(s)
   AddLanguage("Suomi", "fi", 3.5)
   AddLanguage("Deutsch", "de", 4.5)
   AddLanguage("Polski", "pl", 5.5)
-  AddLanguage("Dansk", "da", 6.5)
 
   menu:addButton(_("~!OK"), "o", Video.Width / 2 - 100, Video.Height - 100,
     function() menu:stop() end)
