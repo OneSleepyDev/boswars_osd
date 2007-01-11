@@ -1,11 +1,12 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--			  T H E   W A R   B E G I N S
+--	   Stratagus - A free fantasy real time strategy game engine
 --
 --	units.lua	-	Define the used unit-types.
 --
@@ -23,84 +24,52 @@
 --  
 --      You should have received a copy of the GNU General Public License
 --      along with this program; if not, write to the Free Software
---      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+--      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 --	$Id$
 
 -- Load the animations for the units.
 Load("scripts/anim.lua")
 
-AllowedUnits = {}
-
-local oldDefineAllow = DefineAllow
-function DefineAllow(unit, access)
-   AllowedUnits[unit] = access
+-- Define all of the crystal fields. Only Ident and animations differ.
+for i = 1, 13 do
+	DefineUnitType("unit-crystal-field" .. i, {
+		Name = "Crystal Field" .. i,
+		Files = {"default", "nature/res/res_crys.png"}, Size = {32, 32},
+		Shadow = {"file", "nature/res/res_crys_s.png", "size", {32, 32}, "offset", {5, 5}},
+		Animations = "animations-crystal-field" .. i, Icon = "icon-crystal-field",
+		HitPoints = 50,	TileSize= {1, 1}, BoxSize = {31, 31},
+		NeutralMinimapColor = {81, 200, 234},
+		Armor = 999, Missile = "missile-none",
+		Priority = 0, Corpse = {"unit-destroyed-1x1-place", 0},
+		Type = "land", Building = true, VisibleUnderFog = true,
+		GivesResource = "crystal", CanHarvest = true})
 end
 
-function AllowDefaultUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, default)
-   end 
-end
-
-function DisallowAllUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, "FFFFFFFF")
-   end
-end
-
-function AllowAllUnits()
-   for unit, default in pairs(AllowedUnits) do
-      DefineAllow(unit, "AAAAAAAA")
-   end
-end
-
-function DefineCommonButtons(forUnits) 
-   DefineButton({
-        Pos = 1, Level = 0, Icon = "icon-move",
-        Action = "move", Key = "m", Hint = "~!MOVE",
-        ForUnit = forUnits})
-   DefineButton({
-        Pos = 2, Level = 0, Icon = "icon-stop",
-        Action = "stop", Key = "s", Hint = "~!STOP",
-        ForUnit = forUnits})
-   DefineButton({
-        Pos = 3, Level = 0, Icon = "icon-attack",
-        Action = "attack", Key = "a", Hint = "~!ATTACK", ForUnit = forUnits})
-   DefineButton({
-        Pos = 4, Level = 0, Icon = "icon-patrol",
-        Action = "patrol", Key = "p", Hint = "~!PATROL", ForUnit = forUnits})
-   DefineButton({
-        Pos = 5, Level = 0, Icon = "icon-stand-ground",
-        Action = "stand-ground", Key = "t", Hint = "S~!TAND GROUND", 
-        ForUnit = forUnits})
-end
-
-DefineAnimations("animations-elitecorpse1", {
-    Death = {"unbreakable begin", "wait 1", "frame 20", "wait 2000", 
-        "frame 0", "wait 200", "frame 5", "wait 200", "frame 10", "wait 200", 
-        "frame 15", "wait 200", "frame 15", "wait 1", "unbreakable end", "wait 1", },
-    })
-
-function DefineHumanCorpse(livingunit, size)
-   if (size == nil) then
-    size = {64, 64}
-   end
-
-   DefineUnitType("unit-dead-" .. livingunit, {
-	Name = livingunit .. "body",
-	Image = {"file", GetCurrentLuaPath().."/unit_" .. livingunit .. "_c.png", "size", size},
-	Animations = "animations-elitecorpse1", Icon = "icon-cancel",
-	Speed = 0, HitPoints = 999, DrawLevel = 10, TileSize = {1, 1},
-	BoxSize = {31, 31}, SightRange = 1, BasicDamage = 0,
-	PiercingDamage = 0, Missile = "missile-none",
-	Priority = 0, Type = "land", Vanishes = true})
-end
-
+DefineUnitType("unit-gold-mine", {
+	Name = "Titanium Spike",
+	Files = {"default", "nature/res/spike_1.png"}, Size = {128, 128},
+	Shadow = {"file", "nature/res/spike_1_s.png", "size", {128, 128}, "offset", {0, 0}},
+	Animations = "animations-building", Icon = "icon-tita",
+	Costs = {"time", 150}, VisibleUnderFog = true,
+	Construction = "construction-land2",
+	NeutralMinimapColor = {196, 196, 196},
+	DrawLevel = 40, TileSize = {4, 4}, BoxSize = {127, 127},
+	SightRange = 1, Speed = 0, HitPoints = 25500, Priority = 0,
+	Armor = 20, BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
+	Corpse = {"unit-destroyed-4x4-place", 0}, ExplodeWhenKilled = "missile-explosion",
+	Type = "land", Building = true, GivesResource = "titanium", CanHarvest = true,
+	Sounds = {
+		"selected", "gold-mine-selected",
+		"acknowledge", "gold-mine-acknowledge",
+		"ready", "gold-mine-ready",
+		"help", "gold-mine-help",
+		"dead", "building destroyed",
+		"attack", "gold-mine-attack"}})
 
 DefineUnitType("unit-dead-body", {
 	Name= "Dead Body",
-	Image = {"file", "neutral/units/corpses.png", "size", {72, 72}},
+	Files = {"default", "neutral/units/corpses.png"}, Size = {72, 72},
 	Animations = "animations-dead-body", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 255, DrawLevel = 30, Priority = 0,
 	TileSize = {1, 1}, BoxSize = {31, 31}, SightRange = 1,
@@ -108,7 +77,9 @@ DefineUnitType("unit-dead-body", {
 	Type = "land", Vanishes = true})
 
 DefineUnitType("unit-destroyed-1x1-place", { Name = "Destroyed 1x1 Place",
-	Image = {"file", "neutral/small_destroyed_site.png", "size", {32, 32}},
+	Files = {
+		"default", "tilesets/desert/neutral/buildings/small_destroyed_site.png",},
+	Size = {32, 32},
 	Animations = "animations-destroyed-place", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 255, DrawLevel = 10,
 	TileSize = {1, 1}, BoxSize = {31, 31}, SightRange = 2,
@@ -117,7 +88,8 @@ DefineUnitType("unit-destroyed-1x1-place", { Name = "Destroyed 1x1 Place",
 	Building = true, VisibleUnderFog = true, Vanishes = true})
 
 DefineUnitType("unit-destroyed-2x2-place", { Name = "Destroyed 2x2 Place",
-	Image = {"file", "neutral/destroyed_site.png", "size", {64, 64}},
+	Files = {"default", "tilesets/desert/neutral/buildings/destroyed_site.png"},
+	Size = {64, 64},
 	Animations = "animations-destroyed-place", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 255, DrawLevel = 10,
 	TileSize = {2, 2}, BoxSize = {63, 63}, SightRange = 2,
@@ -126,7 +98,8 @@ DefineUnitType("unit-destroyed-2x2-place", { Name = "Destroyed 2x2 Place",
 	Building = true, VisibleUnderFog = true, Vanishes = true})
 
 DefineUnitType("unit-destroyed-3x3-place", { Name = "Destroyed 3x3 Place",
-	Image = {"file", "neutral/destroyed_site.png", "size", {64, 64}},
+	Files = {"default", "tilesets/desert/neutral/buildings/destroyed_site.png"},
+	Size = {64, 64},
 	Animations = "animations-destroyed-place", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 255, DrawLevel = 10,
 	TileSize = {3, 3}, BoxSize = {95, 95}, SightRange = 3,
@@ -135,7 +108,8 @@ DefineUnitType("unit-destroyed-3x3-place", { Name = "Destroyed 3x3 Place",
 	Building = true, VisibleUnderFog = true, Vanishes = true})
 
 DefineUnitType("unit-destroyed-4x4-place", { Name = "Destroyed 4x4 Place",
-	Image = {"file", "neutral/destroyed_site.png", "size", {64, 64}},
+	Files = {"default", "tilesets/desert/neutral/buildings/destroyed_site.png"},
+	Size = {64, 64},
 	Animations = "animations-destroyed-place", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 255, DrawLevel = 10,
 	TileSize = {4, 4}, BoxSize = {127, 127}, SightRange = 3,
@@ -145,39 +119,48 @@ DefineUnitType("unit-destroyed-4x4-place", { Name = "Destroyed 4x4 Place",
 
 DefineUnitType("unit-revealer", {
 	Name = "Dummy unit",
+	Size = {0, 0},
 	Animations = "animations-building", Icon = "icon-cancel",
 	Speed = 0, HitPoints = 0,
 	TileSize = {1, 1}, BoxSize = {1, 1},
 	SightRange = 12,
 	BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
 	Priority = 0, DecayRate = 1, Type = "land",
-	Building = true, Revealer = true})
+	Building = true, Revealer = true, DetectCloak = true})
+
+-- Needed for stratagus otherwise it crashes
+DefineUnitType("unit-human-wall", {
+	Name = "Wall",
+	Files = {"default", "tilesets/desert/neutral/buildings/wall.png"},
+	Size = {32, 32}, Costs = {"time", 30},
+	Animations = "animations-building", Icon = "icon-cancel",
+	Construction = "construction-wall",
+	Speed = 0, HitPoints = 40, DrawLevel = 39,
+	TileSize = {1, 1}, BoxSize = {31, 31}, SightRange = 1,
+	Armor = 20, BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
+	Priority = 0, AnnoyComputerFactor = 45, Points = 1,
+	Corpse = {"unit-destroyed-1x1-place", 0},
+	ExplodeWhenKilled = "missile-explosion",
+	Type = "land", Building = true})
+
+-- Needed to avoid a stratagus crash
+DefineUnitType("unit-orc-wall", {
+	Name = "Wall", 
+	Files = {"default", "tilesets/desert/neutral/buildings/wall.png"},
+	Size = {32, 32}, Costs = {"time", 30},
+	Animations = "animations-building", Icon = "icon-cancel",
+	Construction = "construction-wall",
+	Speed = 0, HitPoints = 40, DrawLevel = 39,
+	TileSize = {1, 1}, BoxSize = {31, 31}, SightRange = 1,
+	Armor = 20, BasicDamage = 0, PiercingDamage = 0, Missile = "missile-none",
+	Priority = 0, AnnoyComputerFactor = 45, Points = 1,
+	Corpse = {"unit-destroyed-1x1-place", 0},
+	ExplodeWhenKilled = "missile-explosion",
+	Type = "land", Building = true})
+
+-- Load the different races
+Load("scripts/minefield.lua")
+Load("scripts/elites/units.lua")
 
 
--- Load production buildings
-Load("units/vault/vault.lua")
-Load("units/engineer/engineer.lua")
-Load("units/vehiclefactory/vehiclefactory.lua")
 
--- Find and load all other units
-local list
-local i
-local f
-local ff
-
-list = ListDirsInDirectory("units/")
-for i,f in ipairs(list) do
-  if not(string.find(f, "^%.")) then
-     local subdirlist = ListFilesInDirectory("units/" .. f)
-     for ii,ff in ipairs(subdirlist) do
-        if (string.find(ff, "^unit-.*%.lua$")) then
-          print("Loading unit: " .. ff)
-          Load("units/"..f.."/"..ff)
-        end
-     end
-  end
-end
-
--- restore the old DefineAllow function
--- TODO: use another name in the unit scripts
-DefineAllow = oldDefineAllow

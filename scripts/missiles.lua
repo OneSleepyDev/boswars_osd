@@ -1,11 +1,12 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--			  T H E   W A R   B E G I N S
+--	   Stratagus - A free fantasy real time strategy game engine
 --
 --	missiles.lua	-	Define the used missiles.
 --
@@ -23,7 +24,7 @@
 --  
 --      You should have received a copy of the GNU General Public License
 --      along with this program; if not, write to the Free Software
---      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+--      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 --	$Id$
 
@@ -33,37 +34,48 @@
 
 DefineMissileType("missile-nuke", {
 	File = "elites/missile/nuke.png",
-	Size = {128, 128}, Frames = 5, NumDirections = 8,
+	Size = {128, 128}, Frames = 5, NumDirections = 5,
 	ImpactSound = "dev-dead", DrawLevel = 300,
 	Class = "missile-class-point-to-point", Sleep = 1, Speed = 64, Range = 1,
 	ImpactMissile = "missile-288x288-explosion"})
 
 DefineMissileType("missile-grenadier", {
 	File =  "elites/missile/grenade.png",
-	Size = {32, 32}, Frames = 5, NumDirections = 8,
+	Size = {32, 32}, Frames = 5, NumDirections = 5,
 	ImpactSound = "grenade-impact", DrawLevel = 50,
 	Class = "missile-class-parabolic", Sleep = 1, Speed = 16, Range = 2,
 	ImpactMissile = "missile-64x64-explosion"})
 
 DefineMissileType("missile-bazoo", {
 	File = "elites/missile/rocket.png",
-	Size = {32, 32}, Frames = 5, NumDirections = 8,
+	Size = {32, 32}, Frames = 5, NumDirections = 5,
 	ImpactSound = "rocket-impact", DrawLevel = 50,
 	Class = "missile-class-point-to-point", Sleep = 1, Speed = 16, Range = 2,
 	ImpactMissile = "missile-64x64-explosion"})
 
+DefineMissileType("missile-dorcoz", {
+	File = "elites/missile/mis_plasma_sml.png",
+	Size = {32, 32}, Frames = 5, NumDirections = 5,
+	ImpactSound = "fireball hit", DrawLevel = 50,
+	Class = "missile-class-point-to-point", Sleep = 1, Speed = 32, Range = 1})
+
+DefineMissileType("missile-heal", {
+	File = "elites/special/heal.png",
+	Size = {32, 32}, Frames = 5, NumDirections = 1, DrawLevel = 50,
+	Class = "missile-class-stay", Sleep = 2, Speed = 32, Range = 15})
+
 DefineMissileType("missile-64x64-explosion", {
-	File = "missiles/expl_64x64x1.png",
+	File = "nature/effects/expl_64x64x1.png",
 	Size = {64, 64}, Frames = 7, NumDirections = 1, DrawLevel = 50,
 	Class = "missile-class-stay", Sleep = 1, Speed = 16, Range = 1})
 
 DefineMissileType("missile-160x128-explosion", {
-	File = "missiles/expl_160x128x1.png",
+	File = "nature/effects/expl_160x128x1.png",
 	Size = {160, 128}, Frames = 20, NumDirections = 1, DrawLevel = 50,
 	Class = "missile-class-stay", Sleep = 1, Speed = 16, Range = 1})
 
 DefineMissileType("missile-288x288-explosion", {
-	File = "missiles/expl_288x288x1.png",
+	File = "nature/effects/expl_288x288x1.png",
 	Size = {288, 288}, Frames = 20, NumDirections = 1, DrawLevel = 300,
 	Class = "missile-class-stay", Sleep = 1, Speed = 16, Range = 15})
 

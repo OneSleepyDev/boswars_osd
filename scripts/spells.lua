@@ -1,11 +1,12 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--			  T H E   W A R   B E G I N S
+--	   Stratagus - A free fantasy real time strategy game engine
 --
 --	stratagus.lua	-	The craft configuration language.
 --
@@ -23,13 +24,30 @@
 --  
 --      You should have received a copy of the GNU General Public License
 --      along with this program; if not, write to the Free Software
---      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+--      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 --	$Id$
 
 DefineBoolFlags("organic")
 DefineVariables("Speed")
-DefineVariables("Level")
+
+DefineSpell("spell-healing",
+	"showname", "Bandage",
+	"manacost", 3,
+	"range",  1,
+	"target", "unit",
+	"action", {	{"spawn-missile", "missile", "missile-heal", "start-point", {"base", "target"} }, 
+				{"adjust-vitals", "hit-points", 1}},
+	"condition", {
+		"organic", "only",
+		"Building", "false",
+		"self", "false",
+		"max-hp-percent", 100},
+	"sound-when-cast", "medic-attack",
+	"autocast", {
+		"range", 6,
+		"condition", {"alliance", "only", "max-hp-percent", 90 }}
+)
 
 DefineSpell("spell-nuke",
 	"showname", "Nuclear Attack",
@@ -46,7 +64,6 @@ DefineSpell("spell-nuke",
 		{"demolish" ,
 			"range", 4,
 			"damage", 250}},
-    -- FIXME: bazoo-attack isn't defined yet
 	"sound-when-cast", "bazoo-attack",
 	"autocast", {"range", 128}
 )

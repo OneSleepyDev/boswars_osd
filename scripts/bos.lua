@@ -1,11 +1,12 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--			  T H E   W A R   B E G I N S
+--	   Stratagus - A free fantasy real time strategy game engine
 --
 --	bos.lua		-	game specific stuff, and wc2 format compatibility
 --
@@ -23,13 +24,25 @@
 --  
 --      You should have received a copy of the GNU General Public License
 --      along with this program; if not, write to the Free Software
---      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+--      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 --	$Id$
 
-function DefineIcon(arg)
-    icon = CIcon:New(arg.Name)
-    icon.G = CGraphic:New(arg.File, arg.Size[1], arg.Size[2])
-    icon.Frame = arg.Frame
-end
+DefineRaceNames(
+	"race", {
+		"race", 0,
+		"name", "elites",
+		"display", "Elites",
+		"visible"},
+	"race", {
+		"race", 1,
+		"name", "neutral",
+		"display", "Neutral"}
+)
 
+SetColorWaterCycleStart(38)
+SetColorWaterCycleEnd(47)
+SetColorIconCycleStart(240)
+SetColorIconCycleEnd(244)
+SetColorBuildingCycleStart(205)
+SetColorBuildingCycleEnd(207)

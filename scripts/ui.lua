@@ -1,11 +1,12 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--                        T H E   W A R   B E G I N S
+--         Stratagus - A free fantasy real time strategy game engine
 --
 --      ui.lua - Define the widgets
 --
@@ -23,14 +24,88 @@
 --  
 --      You should have received a copy of the GNU General Public License
 --      along with this program; if not, write to the Free Software
---      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+--      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 --      $Id$
 
-Load("scripts/buttonstyles.lua")
+Load("scripts/widgets.lua")
 
-Load("scripts/uilayout.lua")
+Load("scripts/elites/ui.lua")
 
-Load("scripts/cursors.lua")
+DefineCursor({
+	Name = "cursor-glass",
+	Race = "any",
+    File = "general/magnifying_glass.png",
+    HotSpot = {11, 11},
+	Size = {34, 35}})
 
+DefineCursor({
+	Name = "cursor-cross",
+	Race = "any",
+    File = "general/small_green_cross.png",
+    HotSpot = {8, 8},
+	Size = {18, 18}})
+
+DefineCursor({
+	Name = "cursor-scroll",
+	Race = "any",
+    File = "general/cross.png",
+	HotSpot = {15, 15},
+	Size = {32, 32}})
+
+DefineCursor({
+	Name = "cursor-arrow-e",
+	Race = "any",
+    File = "general/arrow_E.png",
+	HotSpot = {22, 10},
+	Size = {32, 24}})
+
+DefineCursor({
+	Name = "cursor-arrow-ne",
+	Race = "any",
+    File = "general/arrow_NE.png",
+	HotSpot = {20, 2},
+	Size = {32, 24}})
+
+DefineCursor({
+	Name = "cursor-arrow-n",
+	Race = "any",
+    File = "general/arrow_N.png",
+	HotSpot = {12, 2},
+	Size = {32, 24}})
+
+DefineCursor({
+	Name = "cursor-arrow-nw",
+	Race = "any",
+    File = "general/arrow_NW.png",
+	HotSpot = {2, 2},
+	Size = {32, 24}})
+
+DefineCursor({
+	Name = "cursor-arrow-w",
+	Race = "any",
+    File = "general/arrow_W.png",
+	HotSpot = {4, 10},
+	Size = {32, 24}})
+
+DefineCursor({
+	Name = "cursor-arrow-s",
+	Race = "any",
+    File = "general/arrow_S.png",
+	HotSpot = {12, 22},
+	Size = {32, 24}})
+
+DefineCursor({
+	Name = "cursor-arrow-sw",
+	Race = "any",
+    File = "general/arrow_SW.png",
+	HotSpot = {2, 18},
+	Size = {32, 24}})
+
+DefineCursor({
+	Name = "cursor-arrow-se",
+	Race = "any",
+    File = "general/arrow_SE.png",
+	HotSpot = {20, 18},
+	Size = {32, 24}})
 

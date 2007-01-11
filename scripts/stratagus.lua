@@ -1,15 +1,16 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--			  T H E   W A R   B E G I N S
+--	   Stratagus - A free fantasy real time strategy game engine
 --
 --	stratagus.lua	-	The craft configuration language.
 --
---	(c) Copyright 1998-2006 by Crestez Leonard and Francois Beerten
+--	(c) Copyright 1998-2004 by Crestez Leonard and François Beerten
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -23,10 +24,11 @@
 --  
 --      You should have received a copy of the GNU General Public License
 --      along with this program; if not, write to the Free Software
---      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+--      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 --	$Id$
 
+-- For documentation see stratagus/doc/ccl/ccl.html
 
 print("Battle of Survival default config file loading ...\n")
 
@@ -36,20 +38,28 @@ print("Battle of Survival default config file loading ...\n")
 
 --	Enter your default title screen.
 
-SetTitleScreens(
-      {Image="video/stratagus_intro.ogg"},
-      {Image="video/bos_intro.ogg"}
-)
+--SetTitleScreens(
+--		{Image = "video/int_logo_stratagus.avi", Music =  "video/int_logo_stratagus.ogg"},
+--		{Image = "video/int_logo_bos.avi", Music =  "video/int_logo_bos.ogg"})
+
+--	Enter your menu music.
+SetMenuMusic("music/title.ogg")
+
+--  Enable color cyclings.
+SetColorCycleAll(true)
 
 --	Set the game name
 SetGameName("bos")
+
+--	set the default map file.
+SetDefaultMap="puds/default.pud"
 
 -------------------------------------------------------------------------------
 --	Music play list -	Insert your titles here
 -------------------------------------------------------------------------------
 playlist = {}
-local musiclist = ListFilesInDirectory("music/")
-for i,f in ipairs(musiclist) do
+musiclist = ListDirectory("music/")
+for i,f in musiclist do
   if(string.find(f, ".ogg$") or string.find(f, ".wav$") or string.find(f, ".mp3$")) then 
     print("Added music file:" .. f) 
     playlist[i] = f
@@ -57,10 +67,11 @@ for i,f in ipairs(musiclist) do
 end
 
 SetSelectionStyle("corners")
-Preference.ShowSightRange = false
-Preference.ShowAttackRange = false
-Preference.ShowReactionRange = false
-Preference.ShowOrders = 2
+SetShowSightRange(false)
+SetShowAttackRange(false)
+SetShowReactionRange(false)
+
+SetShowOrders(2)
 
 ManaSprite("general/mana2.png", 0, -1, 31, 4)
 HealthSprite("general/health2.png", 0, -4, 31, 4)
@@ -69,12 +80,26 @@ ShowHealthDot()
 ShowManaDot()
 ShowNoFull()
 
+--	Define shadow-sprite.
+--ShadowSprite("missiles/unit_shadow.png",3, 42, 32, 32)
+SpellSprite("general/spells1.png", 1, 1, 16, 16)
+
+--	Enable fancy building (random mirroring buildings)
+SetFancyBuildings(false)
+
+--	Enable show tips at the start of a level
+SetShowTips(true)
+
 -------------------------------------------------------------------------------
 --	Game modification
 -------------------------------------------------------------------------------
 
 --	Enable XP to add more damage to attacks?
 SetXPDamage(true)
+
+--	Edit this to enable/disable extended features???
+--	We should remove this junk.
+extensions = true
 
 --	Edit this to enable/disable the training queues.
 SetTrainingQueue(true)
@@ -87,11 +112,14 @@ SetRevealAttacker(true)
 --  Fighters move by default.
 RightButtonMoves();
 
---	Set the name of the missile to use when clicking (move order)
+--	Set the name of the missile to use when clicking
 SetClickMissile("missile-green-cross")
 
 --	Set the name of the missile to use when displaying damage
 SetDamageMissile("missile-hit")
+
+--	Disable grabbing the mouse.
+SetGrabMouse(false)
 
 --	Enable stopping scrolling on mouse leave.
 SetLeaveStops(true)
@@ -99,11 +127,19 @@ SetLeaveStops(true)
 --	Enable mouse and keyboard scrolling.
 SetMouseScroll(true)
 SetKeyScroll(true)
+SetKeyScrollSpeed(1)
+SetMouseScrollSpeed(1)
 SetMouseScrollSpeedDefault(4)
 SetMouseScrollSpeedControl(15)
 
 SetDoubleClickDelay(300)
 SetHoldClickDelay(1000)
+
+--	Enable the display of the command keys in buttons.
+SetShowCommandKey(true)
+
+--  Enable fog of war by default.
+SetFogOfWar(true)
 
 --	Enable minimap terrain by default.
 SetMinimapTerrain(true)
@@ -115,6 +151,10 @@ SetFogOfWarOpacity(128)
 --	Define default resources
 -------------------------------------------------------------------------------
 
+DefineDefaultResources(0, 2000, 1000, 1000, 1000, 1000, 1000)
+DefineDefaultResourcesLow(0, 2000, 1000, 1000, 1000, 1000, 1000)
+DefineDefaultResourcesMedium(0, 5000, 2000, 2000, 2000, 2000, 2000)
+DefineDefaultResourcesHigh(0, 10000, 5000, 5000, 5000, 5000, 5000)
 DefineDefaultIncomes(0, 100, 100, 100, 100, 100, 100)
 DefineDefaultActions("stop", "mine", "harvest", "drill", "mine", "mine", "mine")
 
@@ -122,25 +162,10 @@ DefineDefaultResourceNames("time", "titanium", "crystal", "gas", "ore", "stone",
 
 DefineDefaultResourceAmounts("titanium", 150, "crystal", 150, "gas", 150)
 
-DefinePlayerColorIndex(208, 4)
+--	Chittin
+SetSpeeds(1)
 
-DefinePlayerColors({
-  "red", {{164, 0, 0}, {124, 0, 0}, {92, 4, 0}, {68, 4, 0}},
-  "blue", {{12, 72, 204}, {4, 40, 160}, {0, 20, 116}, {0, 4, 76}},
-  "violet", {{152, 72, 176}, {116, 44, 132}, {80, 24, 88}, {44, 8, 44}},
-  "orange", {{248, 140, 20}, {200, 96, 16}, {152, 60, 16}, {108, 32, 12}},
-  "black", {{40, 40, 60}, {28, 28, 44}, {20, 20, 32}, {12, 12, 20}},
-  "white", {{224, 224, 224}, {152, 152, 180}, {84, 84, 128}, {36, 40, 76}},
-  "yellow", {{252, 252, 72}, {228, 204, 40}, {204, 160, 16}, {180, 116, 0}},
-  "green", {{44, 180, 148}, {20, 132, 92}, {4, 84, 44}, {0, 40, 12}},
-})
-
-function InitGameVariables()
-   SetSpeeds(1)
-   InitAiScripts()
-end
-
-AStar("fixed-unit-cost", 1000, "moving-unit-cost", 4, "dont-know-unseen-terrain", "unseen-terrain-cost", 2)
+AStar("fixed-unit-cost", 1000, "moving-unit-cost", 20, "dont-know-unseen-terrain", "unseen-terrain-cost", 2)
 
 --	Maximum number of selectable units
 SetMaxSelectable(24)
@@ -157,76 +182,53 @@ SetAllPlayersTotalUnitLimit(400)
 
 function SinglePlayerTriggers()
   AddTrigger(
-    function() return GetPlayerData(GetThisPlayer(),"TotalNumUnits") == 0 end,
-    function() return StopGame(GameDefeat) end)
+    function() return IfUnit("this", "==", 0, "all") end,
+    function() return ActionDefeat() end)
 
   AddTrigger(
-    function() return GetNumOpponents(GetThisPlayer()) == 0 end,
-    function() return StopGame(GameVictory) end)   
+    function() return IfOpponents("this", "==", 0) end,
+    function() return ActionVictory() end)
 end
 
 -------------------------------------------------------------------------------
 --	Tables-Part
 -------------------------------------------------------------------------------
 SetFogOfWarGraphics("general/fog.png")
+--DefineTileset("tileset-desert", "class", "desert", "name", "Desert", "file", "scripts/tilesets/desert.lua")
+--DefineTileset("tileset-winter", "class", "winter", "name", "Winter (incomplete)", "file", "scripts/tilesets/winter.lua")
 
-Load("preferences.lua")
-
-if (preferences == nil) then
-  preferences = {
-    VideoWidth = 800,
-    VideoHeight = 600,
-    VideoFullScreen = false,
-    PlayerName = "Player",
-    FogOfWar = true,
-    ShowCommandKey = true,
-    GroupKeys = "0123456789`",
-    GameSpeed = 30,
-    EffectsEnabled = true,
-    EffectsVolume = 128,
-    MusicEnabled = true,
-    MusicVolume = 128,
-    StratagusTranslation = "",
-    GameTranslation = "",
-    TipNumber = 0,
-    ShowTips = true,
-    GrabMouse = false,
-  }
-end
-
-SetVideoResolution(preferences.VideoWidth, preferences.VideoHeight)
-SetVideoFullScreen(preferences.VideoFullScreen)
-SetLocalPlayerName(preferences.PlayerName)
-SetFogOfWar(preferences.FogOfWar)
-UI.ButtonPanel.ShowCommandKey = preferences.ShowCommandKey
-SetGroupKeys(preferences.GroupKeys)
-SetGameSpeed(preferences.GameSpeed)
-SetEffectsEnabled(preferences.EffectsEnabled)
-SetEffectsVolume(preferences.EffectsVolume)
-SetMusicEnabled(preferences.MusicEnabled)
-SetMusicVolume(preferences.MusicVolume)
-SetTranslationsFiles(preferences.StratagusTranslation, preferences.GameTranslation)
-SetGrabMouse(preferences.GrabMouse)
-
+Load("preferences1.lua")
 
 --; Uses Stratagus Library path!
 Load("scripts/bos.lua")
 Load("scripts/icons.lua")
 Load("scripts/sound.lua")
 Load("scripts/missiles.lua")
+Load("scripts/constructions.lua")
 Load("scripts/spells.lua")
 Load("scripts/units.lua")
-Load("scripts/fonts.lua")
-Load("scripts/ui.lua")
 Load("scripts/upgrade.lua")
-Load("scripts/dependency.lua")
+Load("scripts/fonts.lua")
 Load("scripts/buttons.lua")
+Load("scripts/ui.lua")
+
+-- Load extra units
+list = ListDirectory("scripts/elites/")
+for i,f in list do
+  if(string.find(f, "^unit%-.*%.lua$")) then 
+    print("Loading unit: " .. f) 
+    Load("scripts/elites/"..f)
+  end
+end
+
 Load("scripts/ai.lua")
-Load("scripts/commands.lua")
+--Load("scripts/campaigns.lua")
+Load("scripts/credits.lua")
+Load("scripts/tips.lua")
+Load("scripts/ranks.lua")
+Load("scripts/menus.lua")
 Load("scripts/cheats.lua")
-Load("scripts/maps.lua")
 
-
-default_objective = _("Eliminate your enemies.")
+Load("preferences2.lua")
 
 print("... ready!")

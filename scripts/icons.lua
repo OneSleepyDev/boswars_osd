@@ -1,15 +1,16 @@
---            ____            
---           / __ )____  _____
---          / __  / __ \/ ___/
---         / /_/ / /_/ (__  ) 
---        /_____/\____/____/  
---
---  Invasion - Battle of Survival                  
---   A GPL'd futuristic RTS game
+--       _________ __                 __                               
+--      /   _____//  |_____________ _/  |______     ____  __ __  ______
+--      \_____  \\   __\_  __ \__  \\   __\__  \   / ___\|  |  \/  ___/
+--      /        \|  |  |  | \// __ \|  |  / __ \_/ /_/  >  |  /\___ \ 
+--     /_______  /|__|  |__|  (____  /__| (____  /\___  /|____//____  >
+--             \/                  \/          \//_____/            \/ 
+--  ______________________                           ______________________
+--			  T H E   W A R   B E G I N S
+--	   Stratagus - A free fantasy real time strategy game engine
 --
 --	icons.lua	-	Define the icons.
 --
---	(c) Copyright 2003-2006 by Jimmy Salmon and Crestez Leonard.
+--	(c) Copyright 2003-2004 by Jimmy Salmon and Crestez Leonard.
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -23,54 +24,152 @@
 --  
 --      You should have received a copy of the GNU General Public License
 --      along with this program; if not, write to the Free Software
---      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+--      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 --	$Id$
 
--- Build buttons
+--
+--  ELITES
+-- 
+
+DefineIcon({
+	Name = "icon-assault", 
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_assault.png"})
+
+DefineIcon({
+	Name = "icon-apcs",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_apcs.png"})
+
+DefineIcon({
+	Name = "icon-grenadier",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_grenadier.png"})
+
+DefineIcon({
+	Name = "icon-bazoo",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_bazoo.png"})
+
+DefineIcon({
+	Name = "icon-medic",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_medic.png"})
+
+DefineIcon({
+	Name = "icon-engineer",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_engineer.png"})
+
+DefineIcon({
+	Name = "icon-harvester",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_harv.png"})
+
+DefineIcon({
+	Name = "icon-gen",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/build/generator_i.png"})
+
 DefineIcon({
 	Name = "icon-gen_b",
 	Size = {46, 38},
+	Frame = 1,
+	File = "elites/units/engineer_icons.png"})
+
+DefineIcon({
+	Name = "icon-camp",
+	Size = {46, 38},
 	Frame = 0,
-	File = "units/generator/generator_i.png"})
+	File = "elites/build/training_camp_i.png"})
 
 DefineIcon({
 	Name = "icon-camp_b",
 	Size = {46, 38},
+	Frame = 2,
+	File = "elites/units/engineer_icons.png"})
+
+DefineIcon({
+	Name = "icon-vault",
+	Size = {46, 38},
 	Frame = 0,
-	File = "units/camp/training_camp_i.png"})
+	File = "elites/buildings/vault-i.png"})
+
+DefineIcon({
+	Name = "icon-dev",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/build/development_yard_i.png"})
 
 DefineIcon({
 	Name = "icon-dev_b",
 	Size = {46, 38},
 	Frame = 0,
-	File = "units/developmentyard/development_yard_i.png"})
+	File = "elites/units/engineer_icons.png"})
+
+DefineIcon({
+	Name = "icon-rfac",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/build/research_facility_i.png"})
 
 DefineIcon({
 	Name = "icon-rfac_b",
 	Size = {46, 38},
+	Frame = 6,
+	File = "elites/units/engineer_icons.png"})
+
+DefineIcon({
+	Name = "icon-hosp",
+	Size = {46, 38},
 	Frame = 0,
-	File = "units/research/research_facility_i.png"})
+	File = "elites/build/hospital_i.png"})
 
 DefineIcon({
 	Name = "icon-hosp_b",
 	Size = {46, 38},
+	Frame = 7,
+	File = "elites/units/engineer_icons.png"})
+
+DefineIcon({
+	Name = "icon-vfac",
+	Size = {46, 38},
 	Frame = 0,
-	File = "units/hospital/hospital_i.png"})
+	File = "elites/build/vehicle_factory_i.png"})
 
 DefineIcon({
 	Name = "icon-vfac_b",
 	Size = {46, 38},
+	Frame = 8,
+	File = "elites/units/engineer_icons.png"})
+
+DefineIcon({
+	Name = "icon-msilo",
+	Size = {46, 38},
 	Frame = 0,
-	File = "units/vehiclefactory/vehicle_factory_i.png"})
+	File = "elites/build/missile_silo_i.png"})
 
 DefineIcon({
 	Name = "icon-msilo_b",
 	Size = {46, 38},
-	Frame = 0,
-	File = "units/missilesilo/missile_silo_i.png"})
+	Frame = 9,
+	File = "elites/units/engineer_icons.png"})
 
--- upgrades
+DefineIcon({
+	Name = "icon-plate1",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/buildings/plate-i.png"})
+
 DefineIcon({
 	Name = "icon-expl",
 	Size = {46, 38},
@@ -102,6 +201,18 @@ DefineIcon({
 	File = "elites/research/res_pdril.png"})
 
 DefineIcon({
+	Name = "icon-void",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/research/res_avoid.png"})
+
+DefineIcon({
+	Name = "icon-heal",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/special/ico_heal.png"})
+
+DefineIcon({
 	Name = "icon-build-lvl1",
 	Size = {46, 38},
 	Frame = 3,
@@ -118,6 +229,32 @@ DefineIcon({
 	Size = {46, 38},
 	Frame = 5,
 	File = "elites/units/engineer_icons.png"})
+
+--
+-- TERRAS
+--
+
+DefineIcon({
+	Name = "icon-dorcoz",
+	Size = {46, 38},
+	Frame = 0,
+	File = "elites/units/ico_dorcoz.png"})
+
+--
+-- NEUTRAL
+--
+
+DefineIcon({
+	Name = "icon-crystal-field",
+	Size = {46, 38},
+	Frame = 0,
+	File = "nature/res/ico_crys.png"})
+
+DefineIcon({
+	Name = "icon-tita",
+	Size = {46, 38},
+	Frame = 0,
+	File = "nature/res/ico_spike.png"})
 
 --
 --  MISC
@@ -196,3 +333,8 @@ DefineIcon({
 	Frame = 10,
 	File = "general/commands.png"})
 
+DefineIcon({
+        Name = "icon-start-location",
+        Size = {32, 32},
+        Frame = 0,
+        File = "elites/x_startpoint.png"})
