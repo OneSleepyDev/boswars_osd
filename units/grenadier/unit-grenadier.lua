@@ -82,4 +82,4 @@ DefineUnitType("unit-grenadier", {
 	})
 DefineHumanCorpse("grenadier")
 
-DefineAllow("unit-grenadier", "AAAAAAAA")
+DefineAllow("unit-grenadier", "AAAAAAAAAAAAAAAA")

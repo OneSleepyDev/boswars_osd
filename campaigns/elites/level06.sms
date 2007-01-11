@@ -30,7 +30,8 @@
 --
 
 -- Units
-AllowDefaultUnits()
+DefineAllow("unit-engineer",                    "AAAAAAAAAAAAAAAA")
+DefineAllow("unit-vault",                       "AAAAAAAAAAAAAAAA")
 
 -- Map
 Load("maps/C1_M6_Aiglier.sms")

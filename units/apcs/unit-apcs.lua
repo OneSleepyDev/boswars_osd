@@ -85,4 +85,4 @@ DefineUnitType("unit-apcs", {
 		"dead", "apcs-die"}
 	})
 
-DefineAllow("unit-apcs", "AAAAAAAA")
+DefineAllow("unit-apcs", "AAAAAAAAAAAAAAAA")

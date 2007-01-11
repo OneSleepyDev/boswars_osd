@@ -102,7 +102,7 @@ DefineUnitType("build-dead-gen", {
 
 
 
-DefineAllow("unit-gen", "AAAAAAAA")
+DefineAllow("unit-gen", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 2, Level = 1, Icon = "icon-gen_b", Action = "build",

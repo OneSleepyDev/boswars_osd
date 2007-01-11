@@ -65,7 +65,7 @@ DefineUnitType("unit-dorcoz", {
         Corpse = "unit-dead-body", Type = "land", RightMouseAction = "attack",
         CanAttack = true, CanTargetLand = true, CanTargetAir = true,
         LandUnit = true, organic = true,
-        SelectableByRectangle = true,
+        SelectableByRectangle = true, DetectCloak = true,
         RightMouseAction = "attack"
         --[[
         Sounds = {
@@ -77,7 +77,7 @@ DefineUnitType("unit-dorcoz", {
         ]]
         })
 
-DefineAllow("unit-dorcoz", "AAAAAAAA")
+DefineAllow("unit-dorcoz", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
         Pos = 4, Level = 0, Icon = "icon-dorcoz",

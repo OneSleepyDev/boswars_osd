@@ -107,7 +107,7 @@ DefineUnitType("build-dead-gturret", {
 	})
 
 
-DefineAllow("unit-gturret", "AAAAAAAA")
+DefineAllow("unit-gturret", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 2, Level = 3, Icon = "icon-gturret_b", Action = "build",

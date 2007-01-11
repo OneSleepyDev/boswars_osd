@@ -68,7 +68,7 @@ DefineUnitType("unit-tree", {
 	Sounds = {}
 })
 
-DefineAllow("unit-tree", "AAAAAAAA")
+DefineAllow("unit-tree", "AAAAAAAAAAAAAAAA")
 
 
 

@@ -9,7 +9,7 @@ Stratagus game engine.
 
 Copyright and Licence
 ---------------------
-This work, Invasion - Battle of Survival, is copyrighted in 2004-2007 by
+This work, Invasion - Battle of Survival, is copyrighted in 2004-2006 by
 Tina Petersen Jensen, Francois Beerten et al.
 
 Read the file COPYRIGHT.txt for the detailed copyright notice.
@@ -21,7 +21,7 @@ How to install
 Unpack the game data in a games directory:
 > tar -xzvf Invasion-bos.tgz
 
-You also need to get version 2.2.1 of the Stratagus engine available at
+You also need to get version 2.2 of the Stratagus engine available at
 http://www.stratagus.org.
 
 
