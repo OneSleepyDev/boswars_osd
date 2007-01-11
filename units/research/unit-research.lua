@@ -73,7 +73,7 @@ DefineUnitType("unit-rfac", {
 	SightRange = 1, Armor = 30, BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 35, AnnoyComputerFactor = 45,
 	Demand = 300, Points = 200, ExplodeWhenKilled = "missile-160x128-explosion",
-	Corpse = "build-dead-research", Type = "land",
+	Corpse = {"build-dead-research", 0}, Type = "land",
 	Building = true, BuilderOutside = true, VisibleUnderFog = true,
 	Sounds = {
 		"selected", "rfac-selected",
@@ -97,7 +97,7 @@ DefineUnitType("build-dead-research", {
 	Priority = 0, Type = "land", Building = true, Vanishes = true
 	})
 
-DefineAllow("unit-rfac", "AAAAAAAA")
+DefineAllow("unit-rfac", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 6, Level = 1, Icon = "icon-rfac_b", Action = "build",

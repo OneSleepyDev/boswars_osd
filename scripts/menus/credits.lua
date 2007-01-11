@@ -9,7 +9,7 @@
 --
 --      credits.lua - Credits menu.
 --
---      (c) Copyright 2005-2006 by Francois Beerten
+--      (c) Copyright 2005 by François Beerten
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -126,8 +126,7 @@ function RunCreditsMenu(s)
      "  Chris Hopp", -- small_fire.png
      "",
      "",
-     _("The Bos and the Stratagus Team thanks"),
-     _("everybody who has contributed"),
+     _("The Bos and the Stratagus Team thanks all the people who have contributed"),
      _("patches, bug reports, ideas.")
   }
 
@@ -137,12 +136,9 @@ function RunCreditsMenu(s)
   menu:add(sw, Video.Width / 2 - 200, Video.Height / 20 * 3)
   sw:setBackgroundColor(dark)
   sw:setActionCallback(function() sw:restart() end)
-  for i,f in ipairs(credits) do
+  for i,f in credits do
     sw:add(Label(f), 50, 20 * i + 50)
   end
-
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 100, 
-                 Video.Height - 100, function() menu:stop() end)
 
   menu:run()
 end

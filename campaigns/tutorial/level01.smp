@@ -30,5 +30,6 @@
 --
 
 DefinePlayerTypes("person","person")
-PresentMap("Tutorial map 1", 2, 64, 64, 203124691)
+PresentMap("Tutorial map 1", 2, 128, 128, 2403124691)
 DefineMapSetup("campaigns/tutorial/level01.sms")
+

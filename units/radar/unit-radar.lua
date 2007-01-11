@@ -70,7 +70,7 @@ DefineUnitType("unit-radar", {
 	SightRange = 3, Armor = 0 , BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 20, AnnoyComputerFactor = 65,
 	Points = 10, Supply = 0, ExplodeWhenKilled = "missile-64x64-explosion",
-	Corpse = "radar_destroyed", Type = "land",
+	Corpse = {"radar_destroyed", 0}, Type = "land",
 	Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
 	NumDirections = 1,
@@ -92,7 +92,7 @@ DefineUnitType("radar_destroyed", {
 	Priority = 0, Type = "land", Building = true, Vanishes = true
 })
 
-DefineAllow("unit-radar", "AAAAAAAA")
+DefineAllow("unit-radar", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 4, Level = 1, Icon = "icon-radar_b", Action = "build",

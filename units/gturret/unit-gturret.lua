@@ -75,7 +75,7 @@ DefineUnitType("unit-gturret", {
 	ExplodeWhenKilled = "missile-160x128-explosion", RightMouseAction = "attack",
 	CanAttack = true, CanTargetLand = true, CanTargetAir = true,
 	NumDirections = 8, Flip = false,
-	Corpse = "build-dead-gturret", Type = "land",
+	Corpse = {"build-dead-gturret", 0}, Type = "land",
 	Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
 	Sounds = {
@@ -107,7 +107,7 @@ DefineUnitType("build-dead-gturret", {
 	})
 
 
-DefineAllow("unit-gturret", "AAAAAAAA")
+DefineAllow("unit-gturret", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 2, Level = 3, Icon = "icon-gturret_b", Action = "build",

@@ -1,3 +1,3 @@
 cd ..
-find -name "*.lua" | sort > luafiles
+find -name "*.lua" > luafiles
 xgettext -f luafiles -d bos -k_ -o languages/bos.pot

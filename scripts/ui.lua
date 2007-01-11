@@ -27,9 +27,9 @@
 --
 --      $Id$
 
-Load("scripts/buttonstyles.lua")
+Load("scripts/widgets.lua")
 
-Load("scripts/uilayout.lua")
+Load("scripts/elites/ui.lua")
 
 Load("scripts/cursors.lua")
 

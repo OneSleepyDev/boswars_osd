@@ -206,7 +206,7 @@ function RunDiplomacyMenu()
   local sharedvision = {}
   local j = 0
 
-  for i=0,6 do
+  for i=0,14 do
     if (Players[i].Type ~= PlayerNobody and ThisPlayer.Index ~= i) then
       j = j + 1
 
@@ -306,61 +306,76 @@ function RunDiplomacyMenu()
   menu:run(false)
 end
 
-
-function RunRestartConfirmMenu()
-  RunConfirmTypeMenu(
-      _("Are you sure you want to restart the game?"),
-      _("~!Restart Game"), "r", GameRestart)
-end
-
-function RunQuitToMenuConfirmMenu()
-  RunConfirmTypeMenu(
-     _("Are you sure you want to quit to the main menu?"),
-     _("~!Quit to Menu"), "q", GameQuitToMenu)
-end
-
 function RunEndGameMenu()
   local menu = BosGameMenu()
 
   menu:addLabel(_("End Game"), 128, 11)
   local b = menu:addButton(_("~!Restart Game"), "r", 16, 40 + (36 * 0),
-    RunRestartConfirmMenu)
+    function() RunRestartConfirmMenu() end)
   if (IsNetworkGame()) then
     b:setEnabled(false)
   end
   menu:addButton(_("~!Surrender"), "s", 16, 40 + (36 * 1),
-    function() RunConfirmTypeMenu(
-      _("Are you sure you want to surrender to your enemies?"),
-      _("~!Surrender"), "s", GameDefeat) end)
+    function() RunSurrenderConfirmMenu() end)
   menu:addButton(_("~!Quit to Menu"), "q", 16, 40 + (36 * 2),
-    RunQuitToMenuConfirmMenu)
+    function() RunQuitToMenuConfirmMenu() end)
   menu:addButton(_("E~!xit Program"), "x", 16, 40 + (36 * 3),
-    RunExitConfirmMenu)
+    function() RunExitConfirmMenu() end)
   menu:addButton(_("Previous (~<Esc~>)"), "escape", 16, 248,
     function() menu:stop() end)
 
   menu:run(false)
 end
 
-function RunConfirmTypeMenu(boxtext, buttontext, hotkey, stopgametype)
+function RunRestartConfirmMenu()
   local menu = BosGameMenu()
-  local height = 11
 
-  height = height + menu:addMultiLineLabel(boxtext, 128, 11):getHeight()
-  menu:addButton(buttontext, hotkey, 16, height + 29,
-    function() StopGame(stopgametype); menu:stopAll() end)
+  menu:addLabel(_("Are you sure you"), 128, 11)
+  menu:addLabel(_("want to restart"), 128, 11 + (24 * 1))
+  menu:addLabel(_("the game?"), 128, 11 + (24 * 2))
+  menu:addButton(_("~!Restart Game"), "r", 16, 11 + (24 * 3) + 29,
+    function() StopGame(GameRestart); menu:stopAll() end)
   menu:addButton(_("Cancel (~<Esc~>)"), "escape", 16, 248,
     function() menu:stop() end)
+
+  menu:run(false)
+end
+
+function RunSurrenderConfirmMenu()
+  local menu = BosGameMenu()
+
+  menu:addLabel(_("Are you sure you"), 128, 11)
+  menu:addLabel(_("want to surrender"), 128, 11 + (24 * 1))
+  menu:addLabel(_("to your enemies?"), 128, 11 + (24 * 2))
+  menu:addButton(_("~!Surrender"), "s", 16, 11 + (24 * 3) + 29,
+    function() StopGame(GameDefeat); menu:stopAll() end)
+  menu:addButton(_("Cancel (~<Esc~>)"), "escape", 16, 248,
+    function() menu:stop() end)
+
+  menu:run(false)
+end
+
+function RunQuitToMenuConfirmMenu()
+  local menu = BosGameMenu()
+
+  menu:addLabel(_("Are you sure you"), 128, 11)
+  menu:addLabel(_("want to quit to"), 128, 11 + (24 * 1))
+  menu:addLabel(_("the main menu?"), 128, 11 + (24 * 2))
+  menu:addButton(_("~!Quit to Menu"), "q", 16, 11 + (24 * 3) + 29,
+    function() StopGame(GameQuitToMenu); menu:stopAll() end)
+  menu:addButton(_("Cancel (~<Esc~>)"), "escape", 16, 248,
+    function() menu:stop() end)
+
   menu:run(false)
 end
 
 function RunExitConfirmMenu()
   local menu = BosGameMenu()
-  local height = 11
 
-  height = height + menu:addMultiLineLabel(
-    _("Are you sure you want to exit Stratagus?"), 128, 11):getHeight()
-  menu:addButton(_("E~!xit Program"), "x", 16, height + 29,
+  menu:addLabel(_("Are you sure you"), 128, 11)
+  menu:addLabel(_("want to exit"), 128, 11 + (24 * 1))
+  menu:addLabel(_("Stratagus?"), 128, 11 + (24 * 2))
+  menu:addButton(_("E~!xit Program"), "x", 16, 11 + (24 * 3) + 29,
     function() Exit(0) end)
   menu:addButton(_("Cancel (~<Esc~>)"), "escape", 16, 248,
     function() menu:stop() end)

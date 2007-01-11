@@ -69,7 +69,7 @@ DefineUnitType("unit-msilo", {
 	SightRange = 3, Armor = 10, BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 20, AnnoyComputerFactor = 45,
 	Points = 100, ExplodeWhenKilled = "missile-160x128-explosion",
-	Corpse = "build-dead-msilo", Type = land,
+	Corpse = {"build-dead-msilo", 0}, Type = land,
 	MaxMana = 1000, CanCastSpell = {"spell-nuke"},
 	Demand = 400, Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
@@ -89,7 +89,7 @@ DefineUnitType("build-dead-msilo", {
 	PiercingDamage = 0, Missile = "missile-none", Priority = 0,
 	Type = "land" , Building = true, Vanishes = true})
 
-DefineAllow("unit-msilo", "AAAAAAAA")
+DefineAllow("unit-msilo", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 4, Level = 3, Icon = "icon-msilo_b", Action = "build",

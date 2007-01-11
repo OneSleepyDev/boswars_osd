@@ -30,7 +30,8 @@
 --
 
 -- Units
-AllowDefaultUnits()
+DefineAllow("unit-engineer",                    "AAAAAAAAAAAAAAAA")
+DefineAllow("unit-vault",                       "AAAAAAAAAAAAAAAA")
 
 -- Map
 Load("maps/C1_M9_Savoy_lake.sms")

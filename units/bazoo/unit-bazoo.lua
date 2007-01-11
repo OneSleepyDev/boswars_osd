@@ -70,7 +70,7 @@ DefineUnitType("unit-bazoo", {
 	SightRange = 7, ComputerReactionRange = 6, PersonReactionRange = 6,
 	Armor = 2, BasicDamage = 5, PiercingDamage = 15, Missile = "missile-bazoo",
 	MaxAttackRange = 6, Priority = 60, Points = 50,
-	Corpse = "unit-dead-body4",
+	Corpse = {"unit-dead-body4", 0},
 	Type = "land", Demand = 0, 
 	RightMouseAction = "attack",
 	CanAttack = true, CanTargetLand = true, CanTargetAir = true,
@@ -84,4 +84,4 @@ DefineUnitType("unit-bazoo", {
 	})
 DefineHumanCorpse("bazoo")
 
-DefineAllow("unit-bazoo", "AAAAAAAA")
+DefineAllow("unit-bazoo", "AAAAAAAAAAAAAAAA")

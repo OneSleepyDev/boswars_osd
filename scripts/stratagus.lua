@@ -27,6 +27,7 @@
 --
 --	$Id$
 
+-- For documentation see stratagus/doc/ccl/ccl.html
 
 print("Battle of Survival default config file loading ...\n")
 
@@ -49,7 +50,7 @@ SetGameName("bos")
 -------------------------------------------------------------------------------
 playlist = {}
 local musiclist = ListFilesInDirectory("music/")
-for i,f in ipairs(musiclist) do
+for i,f in musiclist do
   if(string.find(f, ".ogg$") or string.find(f, ".wav$") or string.find(f, ".mp3$")) then 
     print("Added music file:" .. f) 
     playlist[i] = f
@@ -115,6 +116,10 @@ SetFogOfWarOpacity(128)
 --	Define default resources
 -------------------------------------------------------------------------------
 
+DefineDefaultResources(0, 2000, 1000, 1000, 1000, 1000, 1000)
+DefineDefaultResourcesLow(0, 2000, 1000, 1000, 1000, 1000, 1000)
+DefineDefaultResourcesMedium(0, 5000, 2000, 2000, 2000, 2000, 2000)
+DefineDefaultResourcesHigh(0, 10000, 5000, 5000, 5000, 5000, 5000)
 DefineDefaultIncomes(0, 100, 100, 100, 100, 100, 100)
 DefineDefaultActions("stop", "mine", "harvest", "drill", "mine", "mine", "mine")
 
@@ -132,15 +137,24 @@ DefinePlayerColors({
   "black", {{40, 40, 60}, {28, 28, 44}, {20, 20, 32}, {12, 12, 20}},
   "white", {{224, 224, 224}, {152, 152, 180}, {84, 84, 128}, {36, 40, 76}},
   "yellow", {{252, 252, 72}, {228, 204, 40}, {204, 160, 16}, {180, 116, 0}},
+  "red", {{164, 0, 0}, {124, 0, 0}, {92, 4, 0}, {68, 4, 0}},
+  "blue", {{12, 72, 204}, {4, 40, 160}, {0, 20, 116}, {0, 4, 76}},
+  "green", {{44, 180, 148}, {20, 132, 92}, {4, 84, 44}, {0, 40, 12}},
+  "violet", {{152, 72, 176}, {116, 44, 132}, {80, 24, 88}, {44, 8, 44}},
+  "orange", {{248, 140, 20}, {200, 96, 16}, {152, 60, 16}, {108, 32, 12}},
+  "black", {{40, 40, 60}, {28, 28, 44}, {20, 20, 32}, {12, 12, 20}},
+  "white", {{224, 224, 224}, {152, 152, 180}, {84, 84, 128}, {36, 40, 76}},
+  "yellow", {{252, 252, 72}, {228, 204, 40}, {204, 160, 16}, {180, 116, 0}},
   "green", {{44, 180, 148}, {20, 132, 92}, {4, 84, 44}, {0, 40, 12}},
 })
 
 function InitGameVariables()
    SetSpeeds(1)
    InitAiScripts()
+   AllowAllUnits()
 end
 
-AStar("fixed-unit-cost", 1000, "moving-unit-cost", 4, "dont-know-unseen-terrain", "unseen-terrain-cost", 2)
+AStar("fixed-unit-cost", 1000, "moving-unit-cost", 20, "dont-know-unseen-terrain", "unseen-terrain-cost", 2)
 
 --	Maximum number of selectable units
 SetMaxSelectable(24)

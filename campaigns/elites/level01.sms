@@ -33,7 +33,8 @@
 --SetAiType(1, "ai-rush")
 
 -- Units
-AllowDefaultUnits()
+DefineAllow("unit-engineer",                    "AAAAAAAAAAAAAAAA")
+DefineAllow("unit-vault",                       "AAAAAAAAAAAAAAAA")
 
 -- Map
 Load("maps/C1_M1_the_river.sms")

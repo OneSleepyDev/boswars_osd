@@ -63,13 +63,13 @@ DefineUnitType("unit-nuke", {
 	Image = {"file", GetCurrentLuaPath().."/nukeplant.png", "size", {256, 256}},
 	Shadow = {"file", GetCurrentLuaPath().."/nukeplant_s.png", "size", {256, 256}},
 	Animations = "animations-nuke", Icon = "icon-nuke",
-	Costs = {"time", 500, "titanium", 3000, "crystal", 750},
+	Costs = {"time", 600, "titanium", 5000, "crystal", 5000},
 	RepairHp = 2, RepairCosts = {"titanium", 5}, Construction = "construction-nuke",
 	Speed = 0, HitPoints = 350, DrawLevel = 25, TileSize  = {7, 5}, BoxSize = {224, 160},
 	SightRange = 3, Armor = 15 , BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 50, AnnoyComputerFactor = 55,
-	Points = 200, Supply = 2500, ExplodeWhenKilled = "missile-160x128-explosion",
-	Corpse = "build-dead-nuke", Type = "land",
+	Points = 200, Supply = 1000, ExplodeWhenKilled = "missile-160x128-explosion",
+	Corpse = {"build-dead-nuke", 0}, Type = "land",
 	Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
 	Sounds = {
@@ -96,7 +96,7 @@ DefineUnitType("build-dead-nuke", {
 	})
 
 
-DefineAllow("unit-nuke", "AAAAAAAA")
+DefineAllow("unit-nuke", "AAAAAAAAAAAAAAAA")
 
 DefineButton({
 	Pos = 7, Level = 1, Icon = "icon-nuke", Action = "build",

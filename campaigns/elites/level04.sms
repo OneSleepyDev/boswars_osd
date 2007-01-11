@@ -33,7 +33,8 @@
 
 
 -- Units
-AllowDefaultUnits()
+DefineAllow("unit-engineer",                    "AAAAAAAAAAAAAAAA")
+DefineAllow("unit-vault",                       "AAAAAAAAAAAAAAAA")
 
 -- Map
 Load("maps/C1_M4_shield_of_wasteland.sms")

@@ -81,7 +81,7 @@ DefineUnitType("unit-rtank", {
 		}
 })
 
-DefineAllow("unit-rtank", "AAAAAAAA")
+DefineAllow("unit-rtank", "AAAAAAAAAAAAAAAA")
 DefineDependency("unit-rtank", {"unit-vfac"})
 
 DefineButton({

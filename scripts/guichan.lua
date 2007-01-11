@@ -54,21 +54,6 @@ function AddMenuHelpers(menu)
 
     return label
   end
-  function menu:addMultiLineLabel(text, x, y, font, center, width)
-    local label = MultiLineLabel(text)
-    if (font == nil) then font = Fonts["large"] end
-    label:setFont(font)
-    if (width == nil) then width = 240 end
-    label:setLineWidth(width)
-    label:adjustSize()
-    if (center == nil or center == true) then -- center text by default
-      x = x - label:getWidth() / 2
-    end
-    self:add(label, x, y)
-
-    return label
-  end
-
 
   function menu:writeText(text, x, y)
     return self:addLabel(text, x, y, Fonts["game"], false)
@@ -127,7 +112,7 @@ function AddMenuHelpers(menu)
        lister = ListFilesInDirectory
     end
     fileslist = lister(path)
-    for i,f in ipairs(fileslist) do
+    for i,f in fileslist do
       if (string.find(f, filter)) then
         mapslist[u] = f
         u = u + 1
@@ -194,6 +179,7 @@ end
 
 function BosMenu(title, background)
   local menu
+  local exitButton
   local bg
   local bgg
 
@@ -215,6 +201,9 @@ function BosMenu(title, background)
     menu:addLabel(title, Video.Width / 2, Video.Height / 20, Fonts["large"])
   end
 
+  exitButton = menu:addButton(_("E~!xit"), "x",
+    Video.Width / 2 - 100, Video.Height - 100,
+    function() menu:stop() end)
   return menu
 end
 
@@ -268,9 +257,6 @@ function RunResultsMenu()
     end
   end
 
-  menu:addButton(_("~!Continue"), "c", Video.Width / 2 - 100, Video.Height - 100,
-                 function() menu:stop() end)
-
   menu:run()
 end
 
@@ -294,18 +280,12 @@ function RunMap(map, objective, fow, revealmap)
       loop = false
     end
   end
-  RunResultsMenu()
+  RunResultsMenu(s)
 end
 
-
-function ResetMapOptions()
-  GameSettings.Difficulty = 5
-  GameSettings.MapRichness = 5
-  GameSettings.Resources = 5
-  GameSettings.NoFogOfWar = false
-  GameSettings.RevealMap = 0
-end
-
+difficulty = 5
+mapresources = 5
+startingresources = 5
 
 function RunStartGameMenu(s)
   local menu
@@ -321,30 +301,25 @@ function RunStartGameMenu(s)
 
   menu:writeLargeText(_("Map"), sx, sy*3)
   menu:writeText(_("File:"), sx, sy*3+30)
-  local maptext = menu:writeText(selectedmap, sx+50, sy*3+30)
-  maptext:setWidth(sx * 9 - 50 - 20)
+  local maptext = menu:writeText(selectedmap .. "                       ", sx+50, sy*3+30)
   menu:writeText(_("Players:"), sx, sy*3+50)
   local players = menu:writeText("             ", sx+70, sy*3+50)
   menu:writeText(_("Description:"), sx, sy*3+70)
-  local descr = menu:writeText("No map", sx+20, sy*3+90)
-  descr:setWidth(sx * 9 - 20 - 20)
+  local descr = menu:writeText("                                        ", sx+20, sy*3+90)
 
-  local fow = menu:addCheckBox(_("Fog of war"), sx, sy*3+120,
-    function(f) GameSettings.NoFogOfWar = not f:isMarked() end)
+  local fow = menu:addCheckBox(_("Fog of war"), sx, sy*3+120, function() end)
   fow:setMarked(preferences.FogOfWar)
-  local revealmap = menu:addCheckBox(_("Reveal map"), sx, sy*3+150,
-    function(f) GameSettings.RevealMap = bool2int(f:isMarked()) end)
+  local revealmap = menu:addCheckBox(_("Reveal map"), sx, sy*3+150, function() end)
   
-  ResetMapOptions()
   menu:writeText(_("Difficulty:"), sx, sy*11)
   menu:addDropDown({_("easy"), _("normal"), _("hard")}, sx + 90, sy*11 + 7,
-    function(dd) GameSettings.Difficulty = (5 - dd:getSelected()*2) end)
+    function(dd) difficulty = (5 - dd:getSelected()*2) end)
   menu:writeText(_("Map richness:"), sx, sy*11+25)
   menu:addDropDown({_("high"), _("normal"), _("low")}, sx + 110, sy*11+25 + 7,
-    function(dd) GameSettings.MapRichness = (5 - dd:getSelected()*2) end)
+    function(dd) mapresources = (5 - dd:getSelected()*2) end)
   menu:writeText(_("Starting resources:"), sx, sy*11+50)
   menu:addDropDown({_("high"), _("normal"), _("low")}, sx + 150, sy*11+50 + 7,
-    function(dd) GameSettings.Resources = (5 - dd:getSelected()*2) end)
+    function(dd) startingresources = (5 - dd:getSelected()*2) end)
 
   local OldPresentMap = PresentMap
   PresentMap = function(description, nplayers, w, h, id)
@@ -363,17 +338,13 @@ function RunStartGameMenu(s)
   end
   browser:setActionCallback(cb)
 
-  AllowAllUnits()
   local function startgamebutton(s)
     print("Starting map -------")
     RunMap("maps/" .. selectedmap, nil, fow:isMarked(), revealmap:isMarked())
     PresentMap = OldPresentMap
     menu:stop()
   end
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("~!Start"), "s", Video.Width /2 + 50 ,  Video.Height - 100,
-                 startgamebutton)
+  menu:addButton(_("Start"), 0,  sx * 11,  sy*14, startgamebutton)
 
   menu:run()
   PresentMap = OldPresentMap
@@ -383,28 +354,18 @@ function RunReplayMenu(s)
   local menu
   menu = BosMenu(_("Show a Replay"))
 
-  -- By default allow all units.
-  -- Current implementation relies on the hypothesis that the map setup will
-  -- configure which units are allowed.
-  -- Stratagus should store complete starting conditions in the log.
-  AllowAllUnits()
-
   local browser = menu:addBrowser("~logs/", ".log$", 300, 100, 300, 200)
+
   local reveal = menu:addCheckBox(_("Reveal map"), 100, 250, function() end)
 
   function startreplaybutton(s)
     print("Starting map -------")
-    ResetMapOptions()
     InitGameVariables()
     StartReplay("~logs/" .. browser:getSelectedItem(), reveal:isMarked())
-    RunResultsMenu()
     menu:stop()
   end
 
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("~!Start"), "s", Video.Width /2 + 50 ,  Video.Height - 100,
-                 startreplaybutton)
+  menu:addButton(_("~!Start"), "s", 100, 300, startreplaybutton)
 
   menu:run()
 end
@@ -415,8 +376,7 @@ function RunLoadGameMenu(s)
   local b
 
   menu = BosMenu(_("Load Game"))
-  local browser = menu:addBrowser("~save", ".sav.gz$", 
-                                 Video.Width / 2 - 150, 100, 300, 200)
+  local browser = menu:addBrowser("~save", ".sav.gz$", 300, 100, 300, 200)
     function startgamebutton(s)
       print("Starting saved game")
       currentCampaign = nil
@@ -442,12 +402,8 @@ function RunLoadGameMenu(s)
       end
     menu:stop()
   end
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("~!Start"), "s", Video.Width /2 + 50 ,  Video.Height - 100,
-                 startgamebutton)
+  menu:addButton(_("Start"), 0, 100, 300, startgamebutton)
 
-  DisallowAllUnits()
   menu:run()
 end
 
@@ -493,10 +449,7 @@ function RunEditorMenu(s)
     HandleCommandKey = HandleIngameCommandKey
     menu:stop()
   end
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("Start ~!Editor"), "e", Video.Width / 2 + 50, Video.Height -100,
-                 starteditorbutton)
+  menu:addButton(_("Start Editor"), 0, sx * 11,  sy*14, starteditorbutton)
 
   menu:run()
   PresentMap = OldPresentMap
@@ -511,27 +464,18 @@ Load("scripts/menus/ingame/editor.lua")
 Load("scripts/menus/campaigns.lua")
 
 function BuildMainMenu(menu)
-  local x = Video.Width / 3
-  local ystep = Video.Height / 10
-  local x1 = x - 100
-  local x2 = 2*x - 100
-
-  menu:addButton(_("~!Start Game"), "s", x1, ystep * 2, RunStartGameMenu)
-  menu:addButton(_("~!Load Game"), "l", x1, ystep * 3, RunLoadGameMenu)
-  menu:addButton(_("~!Campaigns"), "c", x2, ystep * 2, RunCampaignsMenu)
-  menu:addButton(_("Show ~!Replay"), "r", x2, ystep * 3, RunReplayMenu)
-
-  menu:addButton(_("~!MultiPlayer"), "m", x1, ystep * 5, RunMultiPlayerMenu)
-  menu:addButton(_("~!Options"), "o", x2, ystep * 5, function() RunOptionsMenu() menu:stop(1) end)
-
-  menu:addButton(_("Cre~!dits"), "d", x1, ystep * 6, RunCreditsMenu)
-  menu:addButton(_("Start ~!Editor"), "e", x2, ystep * 6, RunEditorMenu)
-
-  menu:addButton(_("E~!xit"), "x", Video.Width / 2 - 100, Video.Height - 100,
-                 function() menu:stop() end)
-
+  local x = Video.Width / 2 - 100
+  local ystep = Video.Height / 20
+  menu:addButton(_("~!Start Game"), "s", x, ystep * 4, RunStartGameMenu)
+  menu:addButton(_("Start ~!Editor"), "e", x, ystep * 5, RunEditorMenu)
+  menu:addButton(_("~!Options"), "o", x, ystep * 6, function() RunOptionsMenu() menu:stop(1) end)
+  menu:addButton(_("~!MultiPlayer"), "m", x, ystep * 7, RunMultiPlayerMenu)
+  menu:addButton(_("~!Campaigns"), "c", x, ystep * 8, RunCampaignsMenu)
+  menu:addButton(_("~!Load Game"), "l", x, ystep * 9, RunLoadGameMenu)
+  menu:addButton(_("Show ~!Replay"), "r", x, ystep * 10, RunReplayMenu)
+  menu:addButton(_("Cre~!dits"), "d", x, ystep * 11, RunCreditsMenu)
   if false then 
-     menu:addButton("~!Widgets Demo", "w", x2, ystep * 7, RunWidgetsMenu)
+     menu:addButton("~!Widgets Demo", "w", x, ystep * 12, RunWidgetsMenu)
   end
 end
 

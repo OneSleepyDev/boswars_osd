@@ -7,7 +7,7 @@
 --  Invasion - Battle of Survival                  
 --   A GPL'd futuristic RTS game
 --
---      uilayout.lua - Define the ingame layout and user interface
+--      ui.lua - Define the elites user interface
 --
 --      (c) Copyright 2001-2006 by Lutz Sammer, Jimmy Salmon, Crestez Leonard,
 --                                 and Francois Beerten.
@@ -304,7 +304,7 @@ UI.Minimap.H = 105
 
 UI.StatusLine.TextX = 38
 UI.StatusLine.TextY = Video.Height - 14
-UI.StatusLine.Width = Video.Width - 38
+UI.StatusLine.Width = Video.Width - 200 - 100
 UI.StatusLine.Font = Fonts["game"]
 
 UI.Timer.X = UI.MapArea.EndY - 70
@@ -347,10 +347,10 @@ UI.PieMenu.G = CGraphic:New("ui/rosace1.png")
 UI.PieMenu.MouseButton = MiddleButton
 UI.PieMenu:SetRadius(70)
 
-UI.MenuButton.X = Video.Width - 130
+UI.MenuButton.X = Video.Width - 200
 UI.MenuButton.Y = 0
 UI.MenuButton.Text = "Menu (~<F10~>)"
-UI.MenuButton.Style = FindButtonStyle("network")
+UI.MenuButton.Style = FindButtonStyle("black")
 UI.MenuButton:SetCallback(function() RunGameMenu() end)
 
 UI.NetworkMenuButton.X = Video.Width - 200

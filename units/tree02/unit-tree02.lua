@@ -49,7 +49,7 @@ DefineUnitType("unit-tree02", {
 	SightRange = 1, Armor = 0 , BasicDamage = 0, PiercingDamage = 0,
 	Missile = "missile-none", Priority = 0, AnnoyComputerFactor = 0,
 	Points = 10, Supply = 0, ExplodeWhenKilled = "missile-64x64-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true, BuilderOutside = true,
 	VisibleUnderFog = true,
@@ -57,7 +57,7 @@ DefineUnitType("unit-tree02", {
 	Sounds = {}
 })
 
-DefineAllow("unit-tree02", "AAAAAAAA")
+DefineAllow("unit-tree02", "AAAAAAAAAAAAAAAA")
 
 
 

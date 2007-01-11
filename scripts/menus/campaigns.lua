@@ -54,33 +54,7 @@ function RunBriefingMenu(objectivestext, briefingtext)
   t:setBackgroundColor(dark)
   menu:add(t, Video.Width / 2 - 200, Video.Height / 20 * 3)
 
-  menu:addButton(_("Start"), "s", Video.Width / 2 - 100, Video.Height - 100,
-                 function() menu:stop() end)
-
   menu:run()
-end
-
-function AddCampaignMessage(when, text)
-  AddTrigger(
-    function() return (GameCycle() >= when) end,
-    function() return AddMessage(text) end
-  )
-end
-
-function AddCampaignFinalAssault(when, text)
-  AddTrigger(
-    function() return (GameCycle() >= when) end,
-    function() 
-      AddMessage(text)
-      CreateUnit("unit-vault", 1, {60, 8})
-      CreateUnit("unit-tank", 1, {59, 12})
-      CreateUnit("unit-tank", 1, {61, 12})
-      CreateUnit("unit-tank", 1, {59, 14})
-      CreateUnit("unit-tank", 1, {60, 14})
-      AiForce(9, {"unit-tank", 4, "unit-rtank", 3})
-      AiAttackWithForce(9)
-    end
-  )
 end
 
 
@@ -121,19 +95,13 @@ function RunCampaignsMenu(s)
 
   menu = BosMenu(_("List of Campaigns"))
 
-  ResetMapOptions()
-  local browser = menu:addBrowser("campaigns/", "^%a",
-                                 Video.Width / 2 - 150, 100, 300, 200,
-                                 ListDirsInDirectory)
+  local browser = menu:addBrowser("campaigns/", "^%a", 300, 100, 300, 200, ListDirsInDirectory)
   function startgamebutton(s)
     print("Starting campaign")
     RunCampaign("campaigns/" .. browser:getSelectedItem() .. "/campaign.lua")
     menu:stop()
   end
-  menu:addButton(_("~!Main Menu"), "m", Video.Width / 2 - 250, Video.Height - 100,
-                 function() menu:stop() end)
-  menu:addButton(_("~!Start"), "s", Video.Width / 2 + 50 ,  Video.Height - 100,
-                 startgamebutton)
+  menu:addButton(_("Start"), 0, 100, 300, startgamebutton)
 
   menu:run()
 end

@@ -163,9 +163,7 @@ function RunSoundOptionsMenu(s)
 end
 
 function SetVideoSize(width, height)
-  if (Video:ResizeScreen(width, height) == false) then
-    return
-  end
+  Video:ResizeScreen(width, height)
   bckground:Resize(Video.Width, Video.Height)
   backgroundWidget = ImageWidget(bckground)
   Load("scripts/ui.lua")
@@ -216,10 +214,6 @@ function RunVideoOptionsMenu(s)
   while continue == 1 do
     menu = BosMenu(_("Video Options"))
     BuildVideoOptionsMenu(menu)
-    menu:addButton(_("~!OK"), "o", 
-        Video.Width / 2 - 100, 
-        Video.Height - 100, 
-        function() menu:stop() end)
     continue = menu:run()
   end 
 end
@@ -255,10 +249,7 @@ function RunLanguageOptionsMenu(s)
   AddLanguage("Suomi", "fi", 3.5)
   AddLanguage("Deutsch", "de", 4.5)
   AddLanguage("Polski", "pl", 5.5)
-  AddLanguage("Dansk", "da", 6.5)
 
-  menu:addButton(_("~!OK"), "o", Video.Width / 2 - 100, Video.Height - 100,
-    function() menu:stop() end)
   menu:run()
 end
 
@@ -268,8 +259,6 @@ function BuildOptionsMenu(menu)
   menu:addButton(_("Video"), 0, x, 180, function() RunVideoOptionsMenu() menu:stop(1) end)
   menu:addButton(_("Speed"), 0, x, 220, RunSpeedOptionsMenu)
   menu:addButton(_("Language"), 0, x, 260, function() RunLanguageOptionsMenu() menu:stop(1) end)
-
-  menu:addButton(_("~!Main menu"), "m", x, Video.Height - 100, function() menu:stop() end)
 end
 
 function RunOptionsMenu(s)

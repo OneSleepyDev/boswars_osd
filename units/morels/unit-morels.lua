@@ -49,7 +49,7 @@ DefineUnitType("unit-morel-1", {
 	Icon = "icon-morel-1",
 	Construction = "construction-morels",
 	Costs = {"time", 150},
-	HitPoints = 50, 
+	HitPoints = 3000, 
 	DrawLevel = 2, 
 	VisibleUnderFog = true,
 	NeutralMinimapColor = {196, 196, 196},
@@ -59,7 +59,7 @@ DefineUnitType("unit-morel-1", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -72,7 +72,7 @@ DefineIcon({
 	Frame = 0,
 	File = "units/morels/morel_1i.png"})
 
-DefineAllow("unit-morel-1", "AAAAAAAA")
+DefineAllow("unit-morel-1", "AAAAAAAAAAAAAAAA")
 
 -- morel-2
 
@@ -84,7 +84,7 @@ DefineUnitType("unit-morel-2", {
 	Icon = "icon-morel-2",
 	Construction = "construction-morels",
 	Costs = {"time", 150},
-	HitPoints = 50, 
+	HitPoints = 2500, 
 	DrawLevel = 2, 
 	VisibleUnderFog = true,
 	NeutralMinimapColor = {196, 196, 196},
@@ -94,7 +94,7 @@ DefineUnitType("unit-morel-2", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -107,7 +107,7 @@ DefineIcon({
 	Frame = 0,
 	File = "units/morels/morel_2i.png"})
 
-DefineAllow("unit-morel-2", "AAAAAAAA")
+DefineAllow("unit-morel-2", "AAAAAAAAAAAAAAAA")
 
 -- morel-3
 
@@ -119,7 +119,7 @@ DefineUnitType("unit-morel-3", {
 	Icon = "icon-morel-3",
 	Construction = "construction-morels",
 	Costs = {"time", 150},
-	HitPoints = 50, 
+	HitPoints = 2500, 
 	DrawLevel = 2, 
 	VisibleUnderFog = true,
 	NeutralMinimapColor = {196, 196, 196},
@@ -129,7 +129,7 @@ DefineUnitType("unit-morel-3", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -142,7 +142,7 @@ DefineIcon({
 	Frame = 0,
 	File = "units/morels/morel_3i.png"})
 
-DefineAllow("unit-morel-3", "AAAAAAAA")
+DefineAllow("unit-morel-3", "AAAAAAAAAAAAAAAA")
 
 -- morel-4
 
@@ -154,7 +154,7 @@ DefineUnitType("unit-morel-4", {
 	Icon = "icon-morel-4",
 	Construction = "construction-morels",
 	Costs = {"time", 150},
-	HitPoints = 50, 
+	HitPoints = 2500, 
 	DrawLevel = 2, 
 	VisibleUnderFog = true,
 	NeutralMinimapColor = {196, 196, 196},
@@ -164,7 +164,7 @@ DefineUnitType("unit-morel-4", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -177,7 +177,7 @@ DefineIcon({
 	Frame = 0,
 	File = "units/morels/morel_4i.png"})
 
-DefineAllow("unit-morel-4", "AAAAAAAA")
+DefineAllow("unit-morel-4", "AAAAAAAAAAAAAAAA")
 
 -- morel-5
 
@@ -189,7 +189,7 @@ DefineUnitType("unit-morel-5", {
 	Icon = "icon-morel-5",
 	Construction = "construction-morels",
 	Costs = {"time", 150},
-	HitPoints = 50, 
+	HitPoints = 1500, 
 	DrawLevel = 2, 
 	VisibleUnderFog = true,
 	NeutralMinimapColor = {196, 196, 196},
@@ -199,7 +199,7 @@ DefineUnitType("unit-morel-5", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -212,7 +212,7 @@ DefineIcon({
 	Frame = 0,
 	File = "units/morels/morel_5i.png"})
 
-DefineAllow("unit-morel-5", "AAAAAAAA")
+DefineAllow("unit-morel-5", "AAAAAAAAAAAAAAAA")
 
 -- morel-6
 
@@ -224,7 +224,7 @@ DefineUnitType("unit-morel-6", {
 	Icon = "icon-morel-6",
 	Construction = "construction-morels",
 	Costs = {"time", 150},
-	HitPoints = 50, 
+	HitPoints = 1500, 
 	DrawLevel = 2, 
 	VisibleUnderFog = true,
 	NeutralMinimapColor = {196, 196, 196},
@@ -234,7 +234,7 @@ DefineUnitType("unit-morel-6", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -247,7 +247,7 @@ DefineIcon({
 	Frame = 0,
 	File = "units/morels/morel_6i.png"})
 
-DefineAllow("unit-morel-6", "AAAAAAAA")
+DefineAllow("unit-morel-6", "AAAAAAAAAAAAAAAA")
 
 -- morel-7
 
@@ -259,7 +259,7 @@ DefineUnitType("unit-morel-7", {
 	Icon = "icon-morel-7",
 	Construction = "construction-morels",
 	Costs = {"time", 150},
-	HitPoints = 50, 
+	HitPoints = 1500, 
 	DrawLevel = 2, 
 	VisibleUnderFog = true,
 	NeutralMinimapColor = {196, 196, 196},
@@ -269,7 +269,7 @@ DefineUnitType("unit-morel-7", {
 	Missile = "missile-none", 
 	Priority = 0, 
 	ExplodeWhenKilled = "missile-explosion",
-	Corpse = "unit-destroyed-1x1-place",
+	Corpse = {"unit-destroyed-1x1-place", 0}, 
 	Type = "land",
 	Building = true,
 	NumDirections = 1,
@@ -282,5 +282,5 @@ DefineIcon({
 	Frame = 0,
 	File = "units/morels/morel_7i.png"})
 
-DefineAllow("unit-morel-7", "AAAAAAAA")
+DefineAllow("unit-morel-7", "AAAAAAAAAAAAAAAA")
 

@@ -7,9 +7,10 @@
 --  Invasion - Battle of Survival                  
 --   A GPL'd futuristic RTS game
 --
---	passive.lua		-	Define the passive AI.
+--      dependency.lua     -       Define the elites dependencies.
 --
---	(c) Copyright 2000-2007 by Lutz Sammer
+--      (c) Copyright 2001-2005 by Lutz Sammer, Crestez Leonard, 
+--      Francois Beerten and Loïs Taulelle
 --
 --      This program is free software; you can redistribute it and/or modify
 --      it under the terms of the GNU General Public License as published by
@@ -25,11 +26,13 @@
 --      along with this program; if not, write to the Free Software
 --      Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 --
---	$Id: ai.lua 626 2006-11-25 18:10:03Z feb $
+--      $Id: upgrade.lua 211 2005-10-08 09:19:27Z feb $
 --
 
-function AiPassive()
-end
+DefineDependency("unit-bazoo", {"upgrade-expl2"})
+DefineDependency("unit-grenadier", {"upgrade-expl"})
+DefineDependency("unit-hosp", {"unit-vault", "unit-camp"})
+DefineDependency("unit-vfac", {"unit-vault", "unit-rfac"})
+DefineDependency("unit-msilo", {"unit-vault", "unit-rfac", "unit-dev-yard"})
 
-RegisterAi("passive", "passive", AiPassive)
-
+DefineDependency("upgrade-expl2", {"upgrade-expl"})
