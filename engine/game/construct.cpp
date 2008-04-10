@@ -9,7 +9,7 @@
 //
 /**@name construct.cpp - The constructions. */
 //
-//      (c) Copyright 1998-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 1998-2006 by Lutz Sammer and Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 
 #include "stratagus.h"
 #include "video.h"
+#include "tileset.h"
 #include "map.h"
 #include "construct.h"
 #include "script.h"
@@ -206,7 +207,7 @@ static int CclDefineConstruction(lua_State *l)
 				if (!strcmp(value, "File")) {
 					file = LuaToString(l, -1);
 				} else if (!strcmp(value, "Size")) {
-					if (!lua_istable(l, -1) || lua_objlen(l, -1) != 2) {
+					if (!lua_istable(l, -1) || luaL_getn(l, -1) != 2) {
 						LuaError(l, "incorrect argument");
 					}
 					lua_rawgeti(l, -1, 1);
@@ -230,7 +231,7 @@ static int CclDefineConstruction(lua_State *l)
 				construction->ShadowFile.Height = h;
 			}
 		} else if (!strcmp(value, "Constructions")) {
-			subargs = lua_objlen(l, -1);
+			subargs = luaL_getn(l, -1);
 			for (k = 0; k < subargs; ++k) {
 				int percent;
 				ConstructionFileType file;

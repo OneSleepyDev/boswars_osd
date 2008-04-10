@@ -9,7 +9,7 @@
 //
 /**@name script_map.cpp - The map ccl functions. */
 //
-//      (c) Copyright 1999-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 1999-2007 by Lutz Sammer and Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include "unit_cache.h"
 #include "script.h"
 #include "map.h"
+#include "tileset.h"
 #include "minimap.h"
 #include "ui.h"
 #include "player.h"
@@ -87,7 +88,7 @@ static int CclStratagusMap(lua_State *l)
 			if (!lua_istable(l, j + 1)) {
 				LuaError(l, "incorrect argument");
 			}
-			subargs = lua_objlen(l, j + 1);
+			subargs = luaL_getn(l, j + 1);
 			for (int k = 0; k < subargs; ++k) {
 				lua_rawgeti(l, j + 1, k + 1);
 				value = LuaToString(l, -1);
@@ -133,7 +134,7 @@ static int CclStratagusMap(lua_State *l)
 						LuaError(l, "incorrect argument");
 					}
 
-					subsubargs = lua_objlen(l, -1);
+					subsubargs = luaL_getn(l, -1);
 					if (subsubargs != Map.Info.MapWidth * Map.Info.MapHeight) {
 						fprintf(stderr, "Wrong tile table length: %d\n", subsubargs);
 					}
@@ -146,9 +147,17 @@ static int CclStratagusMap(lua_State *l)
 						if (!lua_istable(l, -1)) {
 							LuaError(l, "incorrect argument");
 						}
-						args2 = lua_objlen(l, -1);
+						args2 = luaL_getn(l, -1);
 						j2 = 0;
 
+						lua_rawgeti(l, -1, j2 + 1);
+						Map.Fields[i].Tile = LuaToNumber(l, -1);
+						lua_pop(l, 1);
+						++j2;
+						lua_rawgeti(l, -1, j2 + 1);
+						Map.Fields[i].SeenTile = LuaToNumber(l, -1);
+						lua_pop(l, 1);
+						++j2;
 						for (; j2 < args2; ++j2) {
 							lua_rawgeti(l, -1, j2 + 1);
 							value = LuaToString(l, -1);
@@ -288,6 +297,41 @@ static int CclSetFogOfWarGraphics(lua_State *l)
 }
 
 /**
+**  Set a tile
+**
+**  @param tile   Tile number
+**  @param w      X coordinate
+**  @param h      Y coordinate
+**  @param value  Value of the tile
+*/
+void SetTile(int tile, int w, int h, int value)
+{
+	if (w < 0 || w >= Map.Info.MapWidth) {
+		fprintf(stderr, "Invalid map width: %d\n", w);
+		return;
+	}
+	if (h < 0 || h >= Map.Info.MapHeight) {
+		fprintf(stderr, "Invalid map height: %d\n", h);
+		return;
+	}
+	if (tile < 0 || tile >= Map.Tileset.NumTiles) {
+		fprintf(stderr, "Invalid tile number: %d\n", tile);
+		return;
+	}
+	if (value < 0 || value >= 256) {
+		fprintf(stderr, "Invalid tile value: %d\n", value);
+		return;
+	}
+
+	if (Map.Fields) {
+		Map.Field(w, h)->Tile = Map.Tileset.Table[tile];
+		Map.Field(w, h)->Flags = Map.Tileset.FlagsTable[tile];
+		Map.Field(w, h)->Cost = 
+			1 << (Map.Tileset.FlagsTable[tile] & MapFieldSpeedMask);
+	}
+}
+
+/**
 **  Define the type of each player available for the map
 **
 **  @param l  Lua state.
@@ -335,6 +379,24 @@ static int CclDefinePlayerTypes(lua_State *l)
 }
 
 /**
+**  Load the lua file which will define the tile models
+**
+**  @param l  Lua state.
+*/
+static int CclLoadTileModels(lua_State *l)
+{
+	char buf[PATH_MAX];
+
+	LuaCheckArgs(l, 1);
+	Map.TileModelsFileName = LuaToString(l, 1);
+	LibraryFileName(Map.TileModelsFileName.c_str(), buf, sizeof(buf));
+	if (LuaLoadFile(buf) == -1) {
+		DebugPrint("Load failed: %s\n" _C_ LuaToString(l, 1));
+	}
+	return 0;
+}
+
+/**
 **  Register CCL features for map.
 */
 void MapCclRegister(void)
@@ -349,6 +411,7 @@ void MapCclRegister(void)
 
 	lua_register(Lua, "SetFogOfWarGraphics", CclSetFogOfWarGraphics);
 
+	lua_register(Lua, "LoadTileModels", CclLoadTileModels);
 	lua_register(Lua, "DefinePlayerTypes", CclDefinePlayerTypes);
 }
 

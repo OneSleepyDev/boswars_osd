@@ -9,7 +9,7 @@
 //
 /**@name include/font.h - The font headerfile. */
 //
-//      (c) Copyright 1998-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 1998-2007 by Lutz Sammer and Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -167,13 +167,11 @@ extern int VideoDrawReverseNumberClip(int x, int y, CFont *font, int number);
 extern int GetHotKey(const std::string &text);
 
 	/// Load and initialize the fonts
-extern void LoadFonts();
-	/// Free OpenGL fonts
-extern void FreeOpenGLFonts();
+extern void LoadFonts(void);
 	/// Reload OpenGL fonts
-extern void ReloadFonts();
+extern void ReloadFonts(void);
 	/// Cleanup the font module
-extern void CleanFonts();
+extern void CleanFonts(void);
 
 //@}
 

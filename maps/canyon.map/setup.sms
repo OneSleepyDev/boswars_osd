@@ -46,9 +46,8 @@ Players[7].EnergyStored = 0
 Players[7].MagmaStored = 0
 Players[7].AiName = "ai-default"
 
--- patches
-Load(GetCurrentLuaPath() .. "/patch.lua")
-patch("canyon.map", 0, 0)
+-- load tilesets
+LoadTileModels(GetCurrentLuaPath().."/terrain.lua")
 
 -- place units
 CreateUnit("unit-vault", 0, {7, 32})

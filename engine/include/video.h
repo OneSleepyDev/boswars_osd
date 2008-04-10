@@ -51,7 +51,6 @@ protected:
 
 public:
 	// Draw
-	void DrawClip(int x, int y) const;
 	void DrawSub(int gx, int gy, int w, int h, int x, int y) const;
 	void DrawSubClip(int gx, int gy, int w, int h, int x, int y) const;
 	void DrawSubTrans(int gx, int gy, int w, int h, int x, int y,

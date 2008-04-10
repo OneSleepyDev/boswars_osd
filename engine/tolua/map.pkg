@@ -9,8 +9,9 @@ class CMapInfo
 class CMap
 {
 	CMapInfo Info;
-	CPatchManager PatchManager;
 };
 
 extern CMap Map;
+
+void SetTile(int tile, int w, int h, int value = 0);
 

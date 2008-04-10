@@ -9,7 +9,7 @@
 //
 /**@name mouse.cpp - The mouse handling. */
 //
-//      (c) Copyright 1998-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 1998-2007 by Lutz Sammer and Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -40,6 +40,7 @@
 #include <ctype.h>
 
 #include "stratagus.h"
+#include "tileset.h"
 #include "video.h"
 #include "map.h"
 #include "sound.h"
@@ -639,29 +640,6 @@ void RestrictCursorToMinimap(void)
 }
 
 /**
-**  Use the mouse to scroll the map
-**
-**  @param x  Screen X position.
-**  @param y  Screen Y position.
-*/
-void MouseScrollMap(int x, int y)
-{
-	int speed;
-
-	if (KeyModifiers & ModifierControl) {
-		speed = UI.MouseScrollSpeedControl;
-	} else {
-		speed = UI.MouseScrollSpeedDefault;
-	}
-
-	UI.MouseViewport->Set(UI.MouseViewport->MapX, UI.MouseViewport->MapY,
-		UI.MouseViewport->OffsetX + speed * (x - CursorStartX),
-		UI.MouseViewport->OffsetY + speed * (y - CursorStartY));
-	UI.MouseWarpX = CursorStartX;
-	UI.MouseWarpY = CursorStartY;
-}
-
-/**
 **  Handle movement of the cursor.
 **
 **  @param x  Screen X position.
@@ -698,7 +676,19 @@ void UIHandleMouseMove(int x, int y)
 	//  Move map.
 	//
 	if (GameCursor == UI.Scroll.Cursor) {
-		MouseScrollMap(x, y);
+		int speed;
+
+		if (KeyModifiers & ModifierControl) {
+			speed = UI.MouseScrollSpeedControl;
+		} else {
+			speed = UI.MouseScrollSpeedDefault;
+		}
+
+		UI.MouseViewport->Set(UI.MouseViewport->MapX, UI.MouseViewport->MapY,
+			UI.MouseViewport->OffsetX + speed * (x - CursorStartX),
+			UI.MouseViewport->OffsetY + speed * (y - CursorStartY));
+		UI.MouseWarpX = CursorStartX;
+		UI.MouseWarpY = CursorStartY;
 		return;
 	}
 

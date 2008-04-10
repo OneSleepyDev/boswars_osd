@@ -40,7 +40,6 @@
 
 #include "unittype.h"
 #include "iolib.h"
-#include "iocompat.h"
 #include "script.h"
 #include "missile.h"
 #include "upgrade.h"
@@ -60,6 +59,11 @@
 #include "upgrade_structs.h"
 #include "player.h"
 #include "replay.h"
+
+// Workaround for the subtle change in name from lua 5.0 to lua 5.1.
+#if LUA_VERSION_NUM < 501
+#define luaL_Reg luaL_reg
+#endif
 
 /*----------------------------------------------------------------------------
 --  Variables
@@ -436,6 +440,7 @@ bool LuaToBoolean(lua_State *l, int narg)
 */
 void CclGarbageCollect(int fast)
 {
+#if LUA_VERSION_NUM >= 501
 	DebugPrint("Garbage collect (before): %d\n" _C_
 		lua_gc(Lua, LUA_GCCOUNT, 0));
 
@@ -443,6 +448,15 @@ void CclGarbageCollect(int fast)
 
 	DebugPrint("Garbage collect (after): %d\n" _C_
 		lua_gc(Lua, LUA_GCCOUNT, 0));
+#else
+	DebugPrint("Garbage collect (before): %d/%d\n" _C_
+		lua_getgccount(Lua) _C_ lua_getgcthreshold(Lua));
+
+	lua_setgcthreshold(Lua, 0);
+
+	DebugPrint("Garbage collect (after): %d/%d\n" _C_
+		lua_getgccount(Lua) _C_ lua_getgcthreshold(Lua));
+#endif
 }
 
 /*............................................................................
@@ -748,12 +762,20 @@ static void InitLua()
 		{NULL, NULL}
 	};
 
+#if LUA_VERSION_NUM >= 501
 	Lua = luaL_newstate();
+#else
+	Lua = lua_open();
+#endif
 
 	for (const luaL_Reg *lib = lualibs; lib->func; ++lib) {
+#if LUA_VERSION_NUM >= 501
 		lua_pushcfunction(Lua, lib->func);
 		lua_pushstring(Lua, lib->name);
 		lua_call(Lua, 1, 0);
+#else
+		lib->func(Lua);
+#endif
 	}
 
 	tolua_stratagus_open(Lua);
@@ -796,6 +818,7 @@ void InitCcl(void)
 	IconCclRegister();
 	MissileCclRegister();
 	PlayerCclRegister();
+	TilesetCclRegister();
 	MapCclRegister();
 	ConstructionCclRegister();
 	DecorationCclRegister();
@@ -809,6 +832,8 @@ void InitCcl(void)
 	AiCclRegister();
 	TriggerCclRegister();
 	SpellCclRegister();
+
+	EditorCclRegister();
 }
 
 static char *LuaEscape(const char *str)
@@ -1029,8 +1054,6 @@ void CreateUserDirectories(void)
 	directory = UserDirectory + "logs/";
 	makedir(directory.c_str(), 0777);
 	directory = UserDirectory + "save/";
-	makedir(directory.c_str(), 0777);
-	directory = UserDirectory + "patches/";
 	makedir(directory.c_str(), 0777);
 }
 

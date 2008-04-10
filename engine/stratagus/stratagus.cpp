@@ -55,7 +55,7 @@
 **
 ** Handles the map. A map is made from tiles.
 **
-** @see map.h @see map.cpp
+** @see map.h @see map.cpp @see tileset.h @see tileset.cpp
 **
 ** @subsection Unit Unit
 **
@@ -205,7 +205,6 @@ extern int getopt(int argc, char *const *argv, const char *opt);
 #include "widgets.h"
 #include "trigger.h"
 #include "iolib.h"
-#include "iocompat.h"
 #include "guichan.h"
 #include "version.h"
 #include "title.h"
@@ -353,6 +352,7 @@ void CleanGame(void)
 	CleanSelections();
 	CleanGroups();
 	CleanMissiles();
+	CleanTilesets();
 	Map.Clean();
 	CleanReplayLog();
 	FreeVisionTable();
@@ -756,7 +756,7 @@ int main(int argc, char **argv)
 				EditorStartFile = optarg;
 				continue;
 			case 'l':
-				CommandLogDisabled = true;
+				CommandLogDisabled = 1;
 				continue;
 			case 'P':
 				NetworkPort = atoi(optarg);

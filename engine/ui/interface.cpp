@@ -48,7 +48,7 @@
 #include "ui.h"
 #include "menus.h"
 #include "script.h"
-#include "map.h"
+#include "tileset.h"
 #include "minimap.h"
 #include "network.h"
 #include "font.h"

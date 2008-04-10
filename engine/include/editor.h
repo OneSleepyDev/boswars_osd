@@ -9,7 +9,7 @@
 //
 /**@name editor.h - The editor file. */
 //
-//      (c) Copyright 2002-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 2002-2007 by Lutz Sammer
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -49,28 +49,31 @@ enum EditorRunningType {
 
 enum EditorStateType {
 	EditorSelecting,         /// Select
-	EditorEditPatch,         /// Edit patch
+	EditorEditTile,          /// Edit tiles
 	EditorEditUnit,          /// Edit units
 	EditorSetStartLocation   /// Set the start location
 };
 
 class CEditor {
 public:
-	CEditor() : StartUnit(NULL),
+	CEditor() : TerrainEditable(true), StartUnit(NULL),
 		UnitIndex(0), CursorUnitIndex(-1), SelectedUnitIndex(-1),
-		CursorPlayer(-1), SelectedPlayer(-1), MapLoaded(false),
-		ShowPatchOutlines(false)
+		CursorPlayer(-1), SelectedPlayer(-1),
+		MapLoaded(false), WriteCompressedMaps(true)
 		{};
 	~CEditor() {};
 
 	void Init();
+	/// Make random map
+	void CreateRandomMap() const;
+
 
 	std::vector<std::string> UnitTypes;             /// Sorted editor unit-type table.
 	std::vector<const CUnitType *> ShownUnitTypes;  /// Shown editor unit-type table.
 
+	bool TerrainEditable;        /// Is the terrain editable ?
 	IconConfig Select;           /// Editor's select icon.
 	IconConfig Units;            /// Editor's units icon.
-	IconConfig Patch;            /// Editor's patch icon.
 	std::string StartUnitName;   /// name of the Unit used to display the start location.
 	const CUnitType *StartUnit;  /// Unit used to display the start location.
 
@@ -82,9 +85,7 @@ public:
 	int SelectedPlayer;          /// Player selected for draw.
 
 	bool MapLoaded;              /// Map loaded in editor
-
-	bool ShowPatchOutlines;      /// Show outlines around patches
-	Uint32 PatchOutlineColor;    /// Patch outline color
+	bool WriteCompressedMaps;    /// Use compression when saving
 
 	EditorRunningType Running;   /// Editor is running
 
@@ -103,19 +104,30 @@ extern const char *EditorStartFile;  /// Editor CCL start file
 --  Functions
 ----------------------------------------------------------------------------*/
 
-extern void SetEditorSelectIcon(const std::string &icon);
-extern void SetEditorUnitsIcon(const std::string &icon);
-extern void SetEditorPatchIcon(const std::string &icon);
-extern void SetEditorStartUnit(const std::string &name);
-
 	/// Start the editor
-extern void StartEditor(const std::string &filename);
+extern void StartEditor(const char *filename);
+
+	/// Editor main event loop
+extern void EditorMainLoop(void);
+	/// Update editor display
+extern void EditorUpdateDisplay(void);
 
 	/// Save a map from editor
-extern int EditorSaveMap(const std::string &file);
+extern int EditorSaveMap(const char *file);
 
-	/// Start the patch editor
-extern void StartPatchEditor(const std::string &patchName);
+	/// Register ccl features
+extern void EditorCclRegister(void);
+
+	/// Edit tile
+extern void EditTile(int x, int y, int tile);
+	/// Edit tiles
+extern void EditTiles(int x, int y, int tile, int size);
+
+	/// Change the view of a tile
+extern void ChangeTile(int x, int y, int tile);
+	/// Update surroundings for tile changes
+extern void EditorTileChanged(int x, int y);
+
 
 //@}
 

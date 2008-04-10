@@ -9,7 +9,7 @@
 //
 /**@name map_draw.cpp - The map drawing. */
 //
-//      (c) Copyright 1999-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 1999-2007 by Lutz Sammer and Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -34,16 +34,13 @@
 
 #include "stratagus.h"
 #include "unit.h"
+#include "tileset.h"
 #include "video.h"
 #include "map.h"
 #include "ui.h"
 #include "missile.h"
 #include "unittype.h"
 #include "particle.h"
-#include "patch_type.h"
-#include "patch.h"
-#include "patch_manager.h"
-#include "editor.h"
 
 /*----------------------------------------------------------------------------
 --  Declarations
@@ -251,20 +248,42 @@ void CViewport::Center(int x, int y, int offsetx, int offsety)
 */
 void CViewport::DrawMapBackgroundInViewport() const
 {
-	std::list<CPatch *> patches = Map.PatchManager.getPatches();
-	while (!patches.empty()) {
-		CPatch *patch = patches.front();
-		patches.pop_front();
+	if (Map.Tileset.ImageMap) {
+		Map.TileGraphic->DrawSubClip(this->MapX * TileSizeX + this->OffsetX, this->MapY * TileSizeY + this->OffsetY,
+			this->EndX - this->X, this->EndY - this->Y, this->X, this->Y);
+	} else {
+		int ex = this->EndX;
+		int sy = this->MapY * Map.Info.MapWidth;
+		int dy = this->Y - this->OffsetY;
+		int ey = this->EndY;
 
-		const CGraphic *g = patch->getType()->getGraphic();
-		int x = this->X - ((this->MapX - patch->getX()) * TileSizeX + this->OffsetX);
-		int y = this->Y - ((this->MapY - patch->getY()) * TileSizeY + this->OffsetY);
-		g->DrawClip(x, y);
+		while (dy <= ey && (sy / Map.Info.MapWidth) < Map.Info.MapHeight) {
+			if (sy / Map.Info.MapWidth < 0) {
+				sy += Map.Info.MapWidth;
+				dy += TileSizeY;
+				continue;
+			}
 
-		if (Editor.Running && Editor.ShowPatchOutlines) {
-			Video.DrawRectangleClip(Editor.PatchOutlineColor, x, y,
-				patch->getType()->getTileWidth() * TileSizeX,
-				patch->getType()->getTileHeight() * TileSizeY);
+			int sx = this->MapX + sy;
+			int dx = this->X - this->OffsetX;
+			while (dx <= ex && (sx - sy < Map.Info.MapWidth)) {
+				if (sx - sy < 0) {
+					++sx;
+					dx += TileSizeX;
+					continue;
+				}
+
+				if (ReplayRevealMap) {
+					Map.TileGraphic->DrawFrameClip(Map.Fields[sx].Tile, dx, dy);
+				} else {
+					Map.TileGraphic->DrawFrameClip(Map.Fields[sx].SeenTile, dx, dy);
+				}
+
+				++sx;
+				dx += TileSizeX;
+			}
+			sy += Map.Info.MapWidth;
+			dy += TileSizeY;
 		}
 	}
 }
@@ -347,6 +366,17 @@ void CViewport::DrawBorder() const
 
 	Video.DrawRectangle(color, this->X, this->Y, this->EndX - this->X + 1,
 		this->EndY - this->Y + 1);
+}
+
+
+
+/**
+**  Initialize the fog of war.
+**  Build tables, setup functions.
+*/
+void CMap::Init()
+{
+	InitFogOfWar();
 }
 
 //@}

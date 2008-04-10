@@ -48,6 +48,7 @@
 #include "unittype.h"
 #include "animation.h"
 #include "player.h"
+#include "tileset.h"
 #include "map.h"
 #include "actions.h"
 #include "sound_server.h"

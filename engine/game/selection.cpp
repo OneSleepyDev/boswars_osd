@@ -9,7 +9,7 @@
 //
 /**@name selection.cpp - The units' selection. */
 //
-//      (c) Copyright 1999-2008 by Patrice Fortier, Lutz Sammer, and
+//      (c) Copyright 1999-2007 by Patrice Fortier, Lutz Sammer, and
 //                                 Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
@@ -45,6 +45,7 @@
 #include "unit_cache.h"
 #include "interface.h"
 #include "map.h"
+#include "tileset.h"
 #include "ui.h"
 #include "commands.h"
 #include "network.h"
@@ -1163,7 +1164,7 @@ static int CclSelection(lua_State *l)
 	InitSelections();
 	NumSelected = LuaToNumber(l, 1);
 	i = 0;
-	args = lua_objlen(l, 2);
+	args = luaL_getn(l, 2);
 	for (j = 0; j < args; ++j) {
 		const char *str;
 

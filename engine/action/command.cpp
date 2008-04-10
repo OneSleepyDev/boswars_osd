@@ -9,7 +9,7 @@
 //
 /**@name command.cpp - Give units a command. */
 //
-//      (c) Copyright 1998-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 1998-2007 by Lutz Sammer and Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@
 #include "player.h"
 #include "unit.h"
 #include "actions.h"
+#include "tileset.h"
 #include "map.h"
 #include "upgrade.h"
 #include "pathfinder.h"
@@ -969,9 +970,15 @@ void CommandSharedVision(int player, bool state, int opponent)
 				mf = Map.Field(x, y);
 				if (mf->Visible[player] && !mf->Visible[opponent]) {
 					mf->Visible[opponent] = 1;
+					if (opponent == ThisPlayer->Index) {
+						Map.MarkSeenTile(x, y);
+					}
 				}
 				if (mf->Visible[opponent] && !mf->Visible[player]) {
 					mf->Visible[player] = 1;
+					if (player == ThisPlayer->Index) {
+						Map.MarkSeenTile(x, y);
+					}
 				}
 			}
 		}

@@ -226,7 +226,7 @@ Load("scripts/buttons.lua")
 Load("scripts/ai.lua")
 Load("scripts/commands.lua")
 Load("scripts/cheats.lua")
-Load("scripts/patches.lua")
+Load("scripts/maps.lua")
 
 
 default_objective = _("Eliminate your enemies.")

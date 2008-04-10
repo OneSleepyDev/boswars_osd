@@ -512,8 +512,6 @@ extern void CycleViewportMode(int);
 	/// Select viewport mode
 extern void SetViewportMode(ViewportModeType mode);
 
-	/// Use the mouse to scroll the map
-extern void MouseScrollMap(int x, int y);
 	/// Check if mouse scrolling is enabled
 extern bool GetMouseScroll(void);
 	/// Enable/disable scrolling with the mouse

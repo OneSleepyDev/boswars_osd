@@ -53,15 +53,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sstream>
 
 #include "stratagus.h"
 #include "unittype.h"
 #include "unit_cache.h"
 #include "video.h"
 #include "map.h"
-#include "patch.h"
-#include "patch_type.h"
+#include "tileset.h"
 #include "minimap.h"
 #include "settings.h"
 #include "network.h"
@@ -89,19 +87,16 @@ extern void CleanGame();
 --  Defines
 ----------------------------------------------------------------------------*/
 
-#define IconSpacing (IconWidth + 2)
-#define UNIT_ICON_X (IconSpacing)          /// Unit mode icon
-#define UNIT_ICON_Y (0)                    /// Unit mode icon
-#define PATCH_ICON_X (IconSpacing * 2)     /// Tile mode icon
-#define PATCH_ICON_Y (0)                   /// Tile mode icon
-#define START_ICON_X (IconSpacing * 3)     /// Start mode icon
-#define START_ICON_Y (0)                   /// Start mode icon
+#define UNIT_ICON_X (IconWidth + 7)       /// Unit mode icon
+#define UNIT_ICON_Y (0)                   /// Unit mode icon
+#define TILE_ICON_X (IconWidth * 2 + 16)  /// Tile mode icon
+#define TILE_ICON_Y (2)                   /// Tile mode icon
+#define START_ICON_X (IconWidth * 3 + 16)  /// Start mode icon
+#define START_ICON_Y (2)                   /// Start mode icon
 
 /*----------------------------------------------------------------------------
 --  Variables
 ----------------------------------------------------------------------------*/
-
-CEditor Editor;
 
 const char *EditorStartFile;  /// Editor CCL start file
 
@@ -111,15 +106,18 @@ static int IconHeight;                      /// Icon height in panels
 static int ButtonPanelWidth;
 static int ButtonPanelHeight;
 
-static CPatch *PatchUnderCursor;            /// Patch under cursor
-static int PatchOffsetX;
-static int PatchOffsetY;
-static bool UnitPlacedThisPress = false;    /// Only allow one unit per press
+static char TileToolRandom;      /// Tile tool draws random
+static char TileToolDecoration;  /// Tile tool draws with decorations
+static int TileCursorSize;       /// Tile cursor size 1x1 2x2 ... 4x4
+static int TileCursor;           /// Tile type number
+
+static int MirrorEdit = 0;                /// Mirror editing enabled
+static bool UnitPlacedThisPress = false;  /// Only allow one unit per press
 
 enum _mode_buttons_ {
 	SelectButton = 201,  /// Select mode button
 	UnitButton,          /// Unit mode button
-	PatchButton,         /// Patch mode button
+	TileButton,          /// Tile mode button
 	StartButton
 };
 
@@ -153,59 +151,171 @@ static EditorSliderListener *editorSliderListener;
 
 extern void InitDefinedVariables();
 
-/**
-**  Set the editor's select icon
-**
-**  @param icon  The icon to use.
-*/
-void SetEditorSelectIcon(const std::string &icon)
-{
-	Editor.Select.Name = icon;
-}
-
-/**
-**  Set the editor's units icon
-**
-**  @param icon  The icon to use.
-*/
-void SetEditorUnitsIcon(const std::string &icon)
-{
-	Editor.Units.Name = icon;
-}
-
-/**
-**  Set the editor's patch icon
-**
-**  @param icon  The icon to use.
-*/
-void SetEditorPatchIcon(const std::string &icon)
-{
-	Editor.Patch.Name = icon;
-}
-
-/**
-**  Set the editor's start location unit
-**
-**  @param name  The name of the unit to use.
-*/
-void SetEditorStartUnit(const std::string &name)
-{
-	Editor.StartUnitName = name;
-}
-
 /*----------------------------------------------------------------------------
 --  Edit
 ----------------------------------------------------------------------------*/
 
 /**
-**  Edit unit.
+**  Get tile number.
+**
+**  @param basic   Basic tile number
+**  @param random  Return random tile
+**  @param filler  Get a decorated tile.
+**
+**  @return        Tile number used in pud.
+**
+**  @todo  FIXME: Solid tiles are here still hardcoded.
+*/
+int GetTileNumber(int basic, int random, int filler)
+{
+	int tile;
+	int i;
+	int n;
+
+	tile = 16 + basic * 16;
+	if (random) {
+		for (n = i = 0; i < 16; ++i) {
+			if (!Map.Tileset.Table[tile + i]) {
+				if (!filler) {
+					break;
+				}
+			} else {
+				++n;
+			}
+		}
+		n = MyRand() % n;
+		i = -1;
+		do {
+			while (++i < 16 && !Map.Tileset.Table[tile + i]) {
+			}
+		} while (i < 16 && n--);
+		Assert(i != 16);
+		return tile + i;
+	}
+	if (filler) {
+		for (i = 0; i < 16 && Map.Tileset.Table[tile + i]; ++i) {
+		}
+		for (; i < 16 && !Map.Tileset.Table[tile + i]; ++i) {
+		}
+		if (i != 16) {
+			return tile + i;
+		}
+	}
+	return tile;
+}
+
+/**
+**  Edit tile.
+**
+**  @param x     X map tile coordinate.
+**  @param y     Y map tile coordinate.
+**  @param tile  Tile type to edit.
+*/
+void EditTile(int x, int y, int tile)
+{
+	CMapField *mf;
+
+	Assert(x >= 0 && y >= 0 && x < Map.Info.MapWidth && y < Map.Info.MapHeight);
+
+	ChangeTile(x, y, GetTileNumber(tile, TileToolRandom, TileToolDecoration));
+
+	//
+	// Change the flags
+	//
+	mf = Map.Field(x, y);
+	mf->Flags &= ~(MapFieldLandAllowed | MapFieldCoastAllowed |
+		MapFieldWaterAllowed | MapFieldNoBuilding | MapFieldUnpassable);
+
+	mf->Flags |= Map.Tileset.FlagsTable[16 + tile * 16];
+
+	UI.Minimap.UpdateSeenXY(x, y);
+	UI.Minimap.UpdateXY(x, y);
+
+	EditorTileChanged(x, y);
+}
+
+/**
+**  Edit tiles (internal, used by EditTiles()).
+**
+**  @param x     X map tile coordinate.
+**  @param y     Y map tile coordinate.
+**  @param tile  Tile type to edit.
+**  @param size  Size of rectangle
+**
+**  @bug  This function does not support mirror editing!
+*/
+void EditTilesInternal(int x, int y, int tile, int size)
+{
+	int ex;
+	int ey;
+	int i;
+
+	ex = x + size;
+	if (x < 0) {
+		x = 0;
+	}
+	if (ex > Map.Info.MapWidth) {
+		ex = Map.Info.MapWidth;
+	}
+	ey = y + size;
+	if (y < 0) {
+		y = 0;
+	}
+	if (ey > Map.Info.MapHeight) {
+		ey = Map.Info.MapHeight;
+	}
+	while (y < ey) {
+		for (i = x; i < ex; ++i) {
+			EditTile(i, y, tile);
+		}
+		++y;
+	}
+}
+
+/**
+**  Edit tiles
+**
+**  @param x     X map tile coordinate.
+**  @param y     Y map tile coordinate.
+**  @param tile  Tile type to edit.
+**  @param size  Size of rectangle
+*/
+void EditTiles(int x, int y, int tile, int size)
+{
+	int mx;
+	int my;
+
+	mx = Map.Info.MapWidth;
+	my = Map.Info.MapHeight;
+
+	EditTilesInternal(x, y, tile, size);
+
+	if (!MirrorEdit) {
+		return;
+	}
+
+	EditTilesInternal(mx - x - size, y, tile, size);
+
+	if (MirrorEdit == 1) {
+		return;
+	}
+
+	EditTilesInternal(x, my - y - size, tile, size);
+	EditTilesInternal(mx - x - size, my - y - size, tile, size);
+}
+
+/**
+**  Edit unit (internal, used by EditUnit()).
 **
 **  @param x       X map tile coordinate.
 **  @param y       Y map tile coordinate.
 **  @param type    Unit type to edit.
 **  @param player  Player owning the unit.
+**
+**  @todo  FIXME: Check if the player has already a start-point.
+**  @bug   This function does not support mirror editing!
 */
-static void EditUnit(int x, int y, CUnitType *type, CPlayer *player)
+static void EditUnitInternal(int x, int y, CUnitType *type, CPlayer *player)
 {
 	CUnit *unit;
 	CBuildRestrictionOnTop *b;
@@ -214,6 +324,7 @@ static void EditUnit(int x, int y, CUnitType *type, CPlayer *player)
 		player = &Players[PlayerNumNeutral];
 	}
 
+	// FIXME: vladi: should check place when mirror editing is enabled...?
 	unit = MakeUnitAndPlace(x, y, type, player);
 	b = OnTopDetails(unit, NULL);
 	if (b && b->ReplaceOnBuild) {
@@ -237,6 +348,40 @@ static void EditUnit(int x, int y, CUnitType *type, CPlayer *player)
 	if (unit == NoUnitP) {
 		DebugPrint("Unable to allocate Unit");
 	}
+}
+
+/**
+**  Edit unit.
+**
+**  @param x       X map tile coordinate.
+**  @param y       Y map tile coordinate.
+**  @param type    Unit type to edit.
+**  @param player  Player owning the unit.
+**
+**  @todo  FIXME: Check if the player has already a start-point.
+*/
+static void EditUnit(int x, int y, CUnitType *type, CPlayer *player)
+{
+	int mx;
+	int my;
+
+	mx = Map.Info.MapWidth;
+	my = Map.Info.MapHeight;
+
+	EditUnitInternal(x, y, type, player);
+
+	if (!MirrorEdit) {
+		return;
+	}
+
+	EditUnitInternal(mx - x - 1, y, type, player);
+
+	if (MirrorEdit == 1) {
+		return;
+	}
+
+	EditUnitInternal(x, my - y - 1, type, player);
+	EditUnitInternal(mx - x - 1, my - y - 1, type, player);
 }
 
 /**
@@ -339,14 +484,98 @@ static void CleanEditAi()
 ----------------------------------------------------------------------------*/
 
 /**
+**  Draw tile icons.
+**
+**  @todo for the start the solid tiles are hardcoded
+**        If we have more solid tiles, than they fit into the panel, we need
+**        some new ideas.
+*/
+static void DrawTileIcons(void)
+{
+	int x;
+	int y;
+	int i;
+
+	x = UI.InfoPanel.X + 46;
+	y = UI.InfoPanel.Y + 4 + IconHeight + 11;
+
+	if (CursorOn == CursorOnButton &&
+			ButtonUnderCursor >= 300 && ButtonUnderCursor < 306) {
+		Video.DrawRectangle(ColorGray, x - 42,
+				y - 3 + (ButtonUnderCursor - 300) * 20, 100, 20);
+	}
+
+	VideoDrawTextCentered(x, y, GameFont, "1x1");
+	if (TileCursorSize == 1) {
+		VideoDrawText(x + 40, y, GameFont, "x");
+	}
+	y += 20;
+	VideoDrawTextCentered(x, y, GameFont, "2x2");
+	if (TileCursorSize == 2) {
+		VideoDrawText(x + 40, y, GameFont, "x");
+	}
+	y += 20;
+	VideoDrawTextCentered(x, y, GameFont, "3x3");
+	if (TileCursorSize == 3) {
+		VideoDrawText(x + 40, y, GameFont, "x");
+	}
+	y += 20;
+	VideoDrawTextCentered(x, y, GameFont, "4x4");
+	if (TileCursorSize == 4) {
+		VideoDrawText(x + 40, y, GameFont, "x");
+	}
+	y += 20;
+	VideoDrawTextCentered(x, y, GameFont, "Random");
+	if (TileToolRandom) {
+		VideoDrawText(x + 40, y, GameFont, "x");
+	}
+	y += 20;
+	VideoDrawTextCentered(x, y, GameFont, "Filler");
+	if (TileToolDecoration) {
+		VideoDrawText(x + 40, y, GameFont, "x");
+	}
+	y += 20;
+
+	y = UI.ButtonPanel.Y + 4;
+	i = 0;
+
+	while (y < UI.ButtonPanel.Y + 100) {
+		x = UI.ButtonPanel.X + 4;
+		while (x < UI.ButtonPanel.X + 144) {
+			if (!Map.Tileset.Tiles[0x10 + i * 16].BaseTerrain) {
+				y = UI.ButtonPanel.Y + 100;
+				break;
+			}
+			Map.TileGraphic->DrawFrameClip(Map.Tileset.Table[0x10 + i * 16], x, y);
+			Video.DrawRectangle(ColorGray, x, y, TileSizeX, TileSizeY);
+			if (TileCursor == i) {
+				Video.DrawRectangleClip(ColorGreen, x + 1, y + 1, TileSizeX-2, TileSizeY-2);
+
+			}
+			if (CursorOn == CursorOnButton && ButtonUnderCursor == i + 100) {
+				Video.DrawRectangle(ColorWhite, x - 1, y - 1, TileSizeX+2, TileSizeY+2);
+			}
+			x += TileSizeX+2;
+			++i;
+		}
+		y += TileSizeY+2;
+	}
+}
+
+/**
 **  Draw a table with the players
 */
 static void DrawPlayers(void) 
 {
-	int x = UI.InfoPanel.X + 8;
-	int y = UI.InfoPanel.Y + 4 + IconHeight + 10;
+	int x;
+	int y;
+	int i;
+	char buf[256];
 
-	for (int i = 0; i < PlayerMax; ++i) {
+	x = UI.InfoPanel.X + 8;
+	y = UI.InfoPanel.Y + 4 + IconHeight + 10;
+
+	for (i = 0; i < PlayerMax; ++i) {
 		if (i == Editor.CursorPlayer && Map.Info.PlayerType[i] != PlayerNobody) {
 			Video.DrawRectangle(ColorWhite, x + i * 20, y, 20, 20);
 		}
@@ -361,36 +590,34 @@ static void DrawPlayers(void)
 		if (i == Editor.SelectedPlayer) {
 			Video.DrawRectangle(ColorGreen, x + 1 + i * 20, y + 1, 17, 17);
 		}
-		std::ostringstream o;
-		o << i;
-		VideoDrawTextCentered(x + i * 20 + 9, y + 3, SmallFont, o.str());
+		sprintf_s(buf, sizeof(buf), "%d", i);
+		VideoDrawTextCentered(x + i * 20 + 9, y + 3, SmallFont, buf);
 	}
 	
 	x = UI.InfoPanel.X + 4;
 	y += 18 * 1 + 4;
 	if (Editor.SelectedPlayer != -1) {
-		std::ostringstream o;
-		o << _("Player") << " " << Editor.SelectedPlayer << " ";
+		i = sprintf_s(buf, sizeof(buf), "Plyr %d ", Editor.SelectedPlayer);
 
 		switch (Map.Info.PlayerType[Editor.SelectedPlayer]) {
 			case PlayerNeutral:
-				o << _("Neutral");
+				strcat_s(buf, sizeof(buf), "Neutral");
 				break;
 			case PlayerNobody:
 			default:
-				o << _("Nobody");
+				strcat_s(buf, sizeof(buf), "Nobody");
 				break;
 			case PlayerPerson:
-				o << _("Person");
+				strcat_s(buf, sizeof(buf), "Person");
 				break;
 			case PlayerComputer:
 			case PlayerRescuePassive:
 			case PlayerRescueActive:
-				o << _("Computer");
+				strcat_s(buf, sizeof(buf), "Computer");
 				break;
 		}
 
-		VideoDrawText(x, y, GameFont, o.str());
+		VideoDrawText(x, y, GameFont, buf);
 	}
 }
 
@@ -417,7 +644,7 @@ static void DrawUnitIcons(void)
 	y = UI.ButtonPanel.Y + 24;
 	i = Editor.UnitIndex;
 	while (y < UI.ButtonPanel.Y + ButtonPanelHeight - IconHeight) {
-		if (i >= (int)Editor.ShownUnitTypes.size()) {
+		if (i >= (int) Editor.ShownUnitTypes.size()) {
 			break;
 		}
 		x = UI.ButtonPanel.X + 10;
@@ -446,6 +673,48 @@ static void DrawUnitIcons(void)
 }
 
 /**
+**  Draw a tile icon
+**
+**  @param tilenum  Tile number to display
+**  @param x        X display position
+**  @param y        Y display position
+**  @param flags    State of the icon (::IconActive,::IconClicked,...)
+*/
+static void DrawTileIcon(unsigned tilenum, unsigned x, unsigned y, unsigned flags)
+{
+	Uint32 color;
+
+	color = (flags & IconActive) ? ColorGray : ColorBlack;
+
+	Video.DrawRectangleClip(color, x, y, TileSizeX + 7, TileSizeY + 7);
+	Video.DrawRectangleClip(ColorBlack, x + 1, y + 1, TileSizeX + 5, TileSizeY + 5);
+
+	Video.DrawVLine(ColorGray, x + TileSizeX + 4, y + 5, TileSizeY - 1); // _|
+	Video.DrawVLine(ColorGray, x + TileSizeX + 5, y + 5, TileSizeY - 1);
+	Video.DrawHLine(ColorGray, x + 5, y + TileSizeY + 4, TileSizeX + 1);
+	Video.DrawHLine(ColorGray, x + 5, y + TileSizeY + 5, TileSizeX + 1);
+
+	color = (flags & IconClicked) ? ColorGray : ColorWhite;
+	Video.DrawHLine(color, x + 5, y + 3, TileSizeX + 1);
+	Video.DrawHLine(color, x + 5, y + 4, TileSizeX + 1);
+	Video.DrawVLine(color, x + 3, y + 3, TileSizeY + 3);
+	Video.DrawVLine(color, x + 4, y + 3, TileSizeY + 3);
+
+	if (flags & IconClicked) {
+		++x;
+		++y;
+	}
+
+	x += 4;
+	y += 4;
+	Map.TileGraphic->DrawFrameClip(Map.Tileset.Table[tilenum], x, y);
+
+	if (flags & IconSelected) {
+		Video.DrawRectangleClip(ColorGreen, x, y, TileSizeX, TileSizeY);
+	}
+}
+
+/**
 **  Draw the editor panels.
 */
 static void DrawEditorPanel(void)
@@ -458,37 +727,56 @@ static void DrawEditorPanel(void)
 	y = UI.InfoPanel.Y + 4;
 
 	//
-	// Select / Units / Patch / Start
-	// FIXME: wrong button style
+	// Select / Units / Tiles
 	//
 	icon = Editor.Select.Icon;
+	Assert(icon);
+	// FIXME: wrong button style
 	icon->DrawUnitIcon(Players, UI.SingleSelectedButton->Style,
 		(ButtonUnderCursor == SelectButton ? IconActive : 0) |
 			(Editor.State == EditorSelecting ? IconSelected : 0),
 		x, y, "");
-
 	icon = Editor.Units.Icon;
+	Assert(icon);
+	// FIXME: wrong button style
 	icon->DrawUnitIcon(Players, UI.SingleSelectedButton->Style,
 		(ButtonUnderCursor == UnitButton ? IconActive : 0) |
 			(Editor.State == EditorEditUnit ? IconSelected : 0),
 		x + UNIT_ICON_X, y + UNIT_ICON_Y, "");
 
-	icon = Editor.Patch.Icon;
-	icon->DrawUnitIcon(Players, UI.SingleSelectedButton->Style,
-		(ButtonUnderCursor == PatchButton ? IconActive : 0) |
-			(Editor.State == EditorEditPatch ? IconSelected : 0),
-		x + PATCH_ICON_X, y + PATCH_ICON_Y, "");
+	if (Editor.TerrainEditable) {
+		DrawTileIcon(0x10 + 4 * 16, x + TILE_ICON_X, y + TILE_ICON_Y,
+			(ButtonUnderCursor == TileButton ? IconActive : 0) |
+				(Editor.State == EditorEditTile ? IconSelected : 0));
+	}
 
-	icon = Editor.StartUnit->Icon.Icon;
-	icon->DrawUnitIcon(Players, UI.SingleSelectedButton->Style,
-		(ButtonUnderCursor == StartButton ? IconActive : 0) |
-			(Editor.State == EditorSetStartLocation ? IconSelected : 0),
-		x + START_ICON_X, y + START_ICON_Y, "");
+	if (Editor.StartUnit) {
+		icon = Editor.StartUnit->Icon.Icon;
+		Assert(icon);
+		icon->DrawUnitIcon(Players, UI.SingleSelectedButton->Style,
+			(ButtonUnderCursor == StartButton ? IconActive : 0) |
+				(Editor.State == EditorSetStartLocation ? IconSelected : 0),
+			x + START_ICON_X, y + START_ICON_Y, "");
+	} else {
+		//  No unit specified.
+		//  Todo : FIXME Should we just warn user to define Start unit ?
+		PushClipping();
+		x += START_ICON_X + 1;
+		y += START_ICON_Y + 1;
+		if (ButtonUnderCursor == StartButton) {
+			Video.DrawRectangleClip(ColorGray, x - 1, y - 1, IconHeight, IconHeight);
+		}
+		Video.FillRectangleClip(ColorBlack, x, y, IconHeight - 2, IconHeight - 2);
+		Video.DrawLineClip(PlayerColors[Editor.SelectedPlayer][0], x, y, x + IconHeight - 2, y + IconHeight - 2);
+		Video.DrawLineClip(PlayerColors[Editor.SelectedPlayer][0], x, y + IconHeight - 2, x + IconHeight - 2, y);
+		PopClipping();
+	}
 
 	switch (Editor.State) {
 		case EditorSelecting:
 			break;
-		case EditorEditPatch:
+		case EditorEditTile:
+			DrawTileIcons();
 			break;
 		case EditorSetStartLocation:
 			DrawPlayers();
@@ -517,7 +805,7 @@ static void DrawMapCursor(void)
 	if (!CursorBuilding) {
 		switch (Editor.State) {
 			case EditorSelecting:
-			case EditorEditPatch:
+			case EditorEditTile:
 				break;
 			case EditorEditUnit:
 				if (Editor.SelectedUnitIndex != -1) {
@@ -525,7 +813,9 @@ static void DrawMapCursor(void)
 				}
 				break;
 			case EditorSetStartLocation:
-				CursorBuilding = const_cast<CUnitType *>(Editor.StartUnit);
+				if (Editor.StartUnit) {
+					CursorBuilding = const_cast<CUnitType *> (Editor.StartUnit);
+				}
 				break;
 		}
 	}
@@ -538,15 +828,37 @@ static void DrawMapCursor(void)
 		y = UI.MouseViewport->Viewport2MapY(CursorY);
 		x = UI.MouseViewport->Map2ViewportX(x);
 		y = UI.MouseViewport->Map2ViewportY(y);
-		if (Editor.State == EditorEditPatch) {
+		if (Editor.State == EditorEditTile) {
+			int i;
+			int j;
+
 			PushClipping();
 			SetClipping(UI.MouseViewport->X, UI.MouseViewport->Y,
 				UI.MouseViewport->EndX, UI.MouseViewport->EndY);
-			// FIXME: PATCHES
+			for (j = 0; j < TileCursorSize; ++j) {
+				int ty;
+
+				ty = y + j * TileSizeY;
+				if (ty >= UI.MouseViewport->EndY) {
+					break;
+				}
+				for (i = 0; i < TileCursorSize; ++i) {
+					int tx;
+
+					tx = x + i * TileSizeX;
+					if (tx >= UI.MouseViewport->EndX) {
+						break;
+					}
+					Map.TileGraphic->DrawFrameClip(
+						Map.Tileset.Table[0x10 + TileCursor * 16], tx, ty);
+				}
+			}
+			Video.DrawRectangleClip(ColorWhite, x, y, TileSizeX * TileCursorSize,
+				TileSizeY * TileCursorSize);
 			PopClipping();
 		} else {
 			//
-			//  If there is a unit under the cursor, its selection thing
+			// If there is a unit under the cursor, it's selection thing
 			//  is drawn somewhere else (Check DrawUnitSelection.)
 			//
 			if (!UnitUnderCursor) {
@@ -563,22 +875,26 @@ static void DrawMapCursor(void)
 /**
 **  Draw the start locations of all active players on the map
 */
-static void DrawStartLocations()
+static void DrawStartLocations(void)
 {
-	for (const CViewport *vp = UI.Viewports; vp < UI.Viewports + UI.NumViewports; ++vp) {
-		PushClipping();
-		SetClipping(vp->X, vp->Y, vp->EndX, vp->EndY);
+	int i;
+	int x, y;
+	const CUnitType *type;
 
-		for (int i = 0; i < PlayerMax; i++) {
-			if (Map.Info.PlayerType[i] != PlayerNobody && Map.Info.PlayerType[i] != PlayerNeutral) {
-				int x = vp->Map2ViewportX(Players[i].StartX);
-				int y = vp->Map2ViewportY(Players[i].StartY);
-
-				DrawUnitType(Editor.StartUnit, Editor.StartUnit->Sprite, i, 0, x, y);
+	type = Editor.StartUnit;
+	for (i = 0; i < PlayerMax; i++) {
+		if (Map.Info.PlayerType[i] != PlayerNobody && Map.Info.PlayerType[i] != PlayerNeutral) {
+			x = CurrentViewport->Map2ViewportX(Players[i].StartX);
+			y = CurrentViewport->Map2ViewportY(Players[i].StartY);
+			if (type) {
+				DrawUnitType(type, type->Sprite, i, 0, x, y);
+			} else {
+				PushClipping();
+				Video.DrawLineClip(PlayerColors[i][0], x, y, x + TileSizeX, y + TileSizeY);
+				Video.DrawLineClip(PlayerColors[i][0], x, y + TileSizeY, x + TileSizeX, y);
+				PopClipping();
 			}
 		}
-
-		PopClipping();
 	}
 }
 
@@ -653,53 +969,42 @@ static void DrawEditorInfo(void)
 */
 static void ShowUnitInfo(const CUnit *unit)
 {
-	std::ostringstream o;
+	char buf[256];
+	int i;
+	int res;
 
-	o << "#" << UnitNumber(unit) << " '" << unit->Type->Name
-	  << "' - " << _("Player") << ": " << unit->Player->Index;
-
+	res = UnitUnderCursor->Type->ProductionCosts[0] ? 0 : 1;
+	i = sprintf_s(buf, sizeof(buf), "#%d '%s' Player:#%d", UnitNumber(unit),
+		unit->Type->Name.c_str(), unit->Player->Index);
 	if (unit->Type->CanHarvestFrom) {
-		int res = unit->Type->ProductionCosts[0] ? 0 : 1;
-		o << " - " << _("Amount of") << " " << DefaultResourceNames[res] << ": "
-		  << unit->ResourcesHeld[res] / CYCLES_PER_SECOND;
+		sprintf_s(buf + i, sizeof(buf) - i, " Amount of %s: %d", DefaultResourceNames[res].c_str(), unit->ResourcesHeld[res] / CYCLES_PER_SECOND);
 	}
-
-	UI.StatusLine.Set(o.str());
-}
-
-/**
-**  Show info about a patch.
-**
-**  @param patch  Patch pointer.
-*/
-static void ShowPatchInfo(const CPatch *patch)
-{
-	std::ostringstream o;
-
-	o << _("Patch") << ": " << PatchUnderCursor->getType()->getName() << " - ("
-	  << PatchUnderCursor->getX() << ", " << PatchUnderCursor->getY() << ")";
-
-	UI.StatusLine.Set(o.str());
+	UI.StatusLine.Set(buf);
 }
 
 /**
 **  Update editor display.
 */
-static void EditorUpdateDisplay(void)
+void EditorUpdateDisplay(void)
 {
-	DrawMapArea();
+	int i;
+
+	DrawMapArea(); // draw the map area
 
 	DrawStartLocations();
 
 	//
 	// Fillers
 	//
-	for (int i = 0; i < (int)UI.Fillers.size(); ++i) {
-		UI.Fillers[i].G->DrawClip(UI.Fillers[i].X, UI.Fillers[i].Y);
+	for (i = 0; i < (int)UI.Fillers.size(); ++i) {
+		UI.Fillers[i].G->DrawSub(0, 0,
+			UI.Fillers[i].G->Width,
+			UI.Fillers[i].G->Height,
+			UI.Fillers[i].X, UI.Fillers[i].Y);
 	}
 
 	if (CursorOn == CursorOnMap && Gui->getTop() == editorContainer) {
-		DrawMapCursor();
+		DrawMapCursor(); // cursor on map
 	}
 
 	//
@@ -724,7 +1029,10 @@ static void EditorUpdateDisplay(void)
 	// Button panel
 	//
 	if (UI.ButtonPanel.G) {
-		UI.ButtonPanel.G->DrawClip(UI.ButtonPanel.X, UI.ButtonPanel.Y);
+		UI.ButtonPanel.G->DrawSub(0, 0,
+			UI.ButtonPanel.G->Width,
+			UI.ButtonPanel.G->Height, UI.ButtonPanel.X,
+			UI.ButtonPanel.Y);
 	}
 	DrawEditorPanel();
 
@@ -811,24 +1119,20 @@ static void EditorCallbackButtonDown(unsigned button)
 		switch (ButtonUnderCursor) {
 			case SelectButton :
 				Editor.State = EditorSelecting;
-				Editor.ShowPatchOutlines = false;
 				editorSlider->setVisible(false);
 				return;
 			case UnitButton:
 				Editor.State = EditorEditUnit;
-				Editor.ShowPatchOutlines = false;
 				editorSlider->setVisible(true);
 				return;
-			case PatchButton :
-				if (EditorEditPatch) {
-					Editor.State = EditorEditPatch;
-					Editor.ShowPatchOutlines = true;
+			case TileButton :
+				if (EditorEditTile) {
+					Editor.State = EditorEditTile;
 				}
 				editorSlider->setVisible(false);
 				return;
 			case StartButton:
 				Editor.State = EditorSetStartLocation;
-				Editor.ShowPatchOutlines = false;
 				editorSlider->setVisible(false);
 				return;
 			default:
@@ -836,13 +1140,33 @@ static void EditorCallbackButtonDown(unsigned button)
 		}
 	}
 	//
-	// Click on patch area
+	// Click on tile area
 	//
 	if (CursorOn == CursorOnButton && ButtonUnderCursor >= 100 &&
-			Editor.State == EditorEditPatch) {
-		// FIXME: PATCHES
-//		switch (ButtonUnderCursor) {
-//		}
+			Editor.State == EditorEditTile) {
+		switch (ButtonUnderCursor) {
+			case 300:
+				TileCursorSize = 1;
+				return;
+			case 301:
+				TileCursorSize = 2;
+				return;
+			case 302:
+				TileCursorSize = 3;
+				return;
+			case 303:
+				TileCursorSize = 4;
+				return;
+			case 304:
+				TileToolRandom ^= 1;
+				return;
+			case 305:
+				TileToolDecoration ^= 1;
+				return;
+		}
+		if (Map.Tileset.Tiles[16 + (ButtonUnderCursor - 100) * 16].BaseTerrain) {
+			TileCursor = ButtonUnderCursor - 100;
+		}
 		return;
 	}
 	
@@ -884,15 +1208,13 @@ static void EditorCallbackButtonDown(unsigned button)
 		}
 
 		if (MouseButtons & LeftButton) {
-			if (Editor.State == EditorEditPatch) {
-				if (PatchUnderCursor) {
-					int tileX = UI.MouseViewport->Viewport2MapX(CursorX);
-					int tileY = UI.MouseViewport->Viewport2MapY(CursorY);
-					PatchOffsetX = tileX - PatchUnderCursor->getX();
-					PatchOffsetY = tileY - PatchUnderCursor->getY();
-				}
-			} else if (Editor.State == EditorEditUnit) {
-				if (!UnitPlacedThisPress && CursorBuilding) {
+			if (Editor.State == EditorEditTile) {
+				EditTiles(UI.MouseViewport->Viewport2MapX(CursorX),
+					UI.MouseViewport->Viewport2MapY(CursorY), TileCursor,
+					TileCursorSize);
+			}
+			if (!UnitPlacedThisPress) {
+				if (Editor.State == EditorEditUnit && CursorBuilding) {
 					if (CanBuildUnitType(NULL, CursorBuilding,
 							UI.MouseViewport->Viewport2MapX(CursorX),
 							UI.MouseViewport->Viewport2MapY(CursorY), 1)) {
@@ -909,7 +1231,8 @@ static void EditorCallbackButtonDown(unsigned button)
 							MaxSampleVolume);
 					}
 				}
-			} else if (Editor.State == EditorSetStartLocation) {
+			}
+			if (Editor.State == EditorSetStartLocation) {
 				Players[Editor.SelectedPlayer].StartX = UI.MouseViewport->Viewport2MapX(CursorX);
 				Players[Editor.SelectedPlayer].StartY = UI.MouseViewport->Viewport2MapY(CursorY);
 			}
@@ -930,10 +1253,19 @@ static void EditorCallbackButtonDown(unsigned button)
 */
 static void EditorCallbackKeyDown(unsigned key, unsigned keychar)
 {
+	size_t p;
+
 	if (HandleKeyModifiersDown(key, keychar)) {
 		return;
 	}
 
+	// FIXME: don't handle unicode well. Should work on all latin keyboard.
+	if ((p = UiGroupKeys.find(key)) != std::string::npos) {
+		key = '0' + p;
+		if (key > '9') {
+			key = SDLK_BACKQUOTE;
+		}
+	}
 	switch (key) {
 		case 'f': // ALT+F, CTRL+F toggle fullscreen
 			if (!(KeyModifiers & (ModifierAlt | ModifierControl))) {
@@ -950,6 +1282,34 @@ static void EditorCallbackKeyDown(unsigned key, unsigned keychar)
 			}
 			break;
 
+		// FIXME: move to lua
+		case 'r': // CTRL+R Randomize map
+			if (KeyModifiers & ModifierControl) {
+				Editor.CreateRandomMap();
+			}
+			break;
+
+		// FIXME: move to lua
+		case 'm': // CTRL+M Mirror edit
+			if (KeyModifiers & ModifierControl)  {
+				++MirrorEdit;
+				if (MirrorEdit == 3) {
+					MirrorEdit = 0;
+				}
+				switch (MirrorEdit) {
+					case 1:
+						UI.StatusLine.Set(_("Mirror editing enabled: 2-side"));
+						break;
+					case 2:
+						UI.StatusLine.Set(_("Mirror editing enabled: 4-side"));
+						break;
+					default:
+						UI.StatusLine.Set(_("Mirror editing disabled"));
+						break;
+				  }
+			}
+			break;
+
 		case 'x': // ALT+X, CTRL+X: Exit editor
 			if (!(KeyModifiers & (ModifierAlt | ModifierControl))) {
 				break;
@@ -957,10 +1317,7 @@ static void EditorCallbackKeyDown(unsigned key, unsigned keychar)
 			Exit(0);
 
 		case SDLK_DELETE: // Delete
-			if (PatchUnderCursor) {
-				Map.PatchManager.remove(PatchUnderCursor);
-				PatchUnderCursor = NULL;
-			} else if (UnitUnderCursor) {
+			if (UnitUnderCursor) {
 				CUnit *unit = UnitUnderCursor;
 
 				unit->Remove(NULL);
@@ -987,12 +1344,18 @@ static void EditorCallbackKeyDown(unsigned key, unsigned keychar)
 		case SDLK_KP6:
 			KeyScrollState |= ScrollRight;
 			break;
-
-		case '0': case '1': case '2': // 0-8 change player owner
+		case '0':
+			if (UnitUnderCursor) {
+				UnitUnderCursor->ChangeOwner(&Players[PlayerNumNeutral]);
+				UI.StatusLine.Set(_("Unit owner modified"));
+			}
+			break;
+		case '1': case '2':
 		case '3': case '4': case '5':
 		case '6': case '7': case '8':
-			if (UnitUnderCursor && Map.Info.PlayerType[(int)key - '0'] != PlayerNobody) {
-				UnitUnderCursor->ChangeOwner(&Players[(int)key - '0']);
+		case '9':
+			if (UnitUnderCursor && Map.Info.PlayerType[(int) key - '1'] != PlayerNobody) {
+				UnitUnderCursor->ChangeOwner(&Players[(int) key - '1']);
 				UI.StatusLine.Set(_("Unit owner modified"));
 			}
 			break;
@@ -1041,7 +1404,7 @@ static void EditorCallbackKeyUp(unsigned key, unsigned keychar)
 /**
 **  Callback for input.
 */
-static void EditorCallbackKeyRepeated(unsigned dummy1, unsigned dummy2)
+static void EditorCallbackKey3(unsigned dummy1, unsigned dummy2)
 {
 }
 
@@ -1059,6 +1422,7 @@ static void EditorCallbackMouse(int x, int y)
 	static int LastMapX;
 	static int LastMapY;
 	enum _cursor_on_ OldCursorOn;
+	char buf[256];
 
 	HandleCursorMove(&x, &y); // Reduce to screen
 
@@ -1066,7 +1430,39 @@ static void EditorCallbackMouse(int x, int y)
 	// Move map.
 	//
 	if (GameCursor == UI.Scroll.Cursor) {
-		MouseScrollMap(x, y);
+		int xo;
+		int yo;
+
+		// FIXME: Support with CTRL for faster scrolling.
+		// FIXME: code duplication, see ../ui/mouse.c
+		xo = UI.MouseViewport->MapX;
+		yo = UI.MouseViewport->MapY;
+		if (UI.MouseScrollSpeedDefault < 0) {
+			if (x < CursorStartX) {
+				xo++;
+			} else if (x > CursorStartX) {
+				xo--;
+			}
+			if (y < CursorStartY) {
+				yo++;
+			} else if (y > CursorStartY) {
+				yo--;
+			}
+		} else {
+			if (x < CursorStartX) {
+				xo--;
+			} else if (x > CursorStartX) {
+				xo++;
+			}
+			if (y < CursorStartY) {
+				yo--;
+			} else if (y > CursorStartY) {
+				yo++;
+			}
+		}
+		UI.MouseWarpX = CursorStartX;
+		UI.MouseWarpY = CursorStartY;
+		UI.MouseViewport->Set(xo, yo, TileSizeX / 2, TileSizeY / 2);
 		return;
 	}
 
@@ -1078,10 +1474,10 @@ static void EditorCallbackMouse(int x, int y)
 		UnitPlacedThisPress = false;
 	}
 	//
-	// Dragging patches or units on map.
+	// Drawing tiles on map.
 	//
 	if (CursorOn == CursorOnMap && (MouseButtons & LeftButton) &&
-			(Editor.State == EditorEditPatch || Editor.State == EditorEditUnit)) {
+			(Editor.State == EditorEditTile || Editor.State == EditorEditUnit)) {
 
 		//
 		// Scroll the map
@@ -1104,6 +1500,7 @@ static void EditorCallbackMouse(int x, int y)
 			UI.SelectedViewport->Set(
 				UI.SelectedViewport->MapX,
 				UI.SelectedViewport->MapY + 1, TileSizeX / 2, TileSizeY / 2);
+
 		}
 
 		//
@@ -1111,11 +1508,10 @@ static void EditorCallbackMouse(int x, int y)
 		//
 		RestrictCursorToViewport();
 
-		if (Editor.State == EditorEditPatch && PatchUnderCursor) {
-			int tileX = UI.SelectedViewport->Viewport2MapX(CursorX);
-			int tileY = UI.SelectedViewport->Viewport2MapY(CursorY);
-			Map.PatchManager.move(PatchUnderCursor, tileX - PatchOffsetX, tileY - PatchOffsetY);
-			ShowPatchInfo(PatchUnderCursor);
+		if (Editor.State == EditorEditTile) {
+			EditTiles(UI.SelectedViewport->Viewport2MapX(CursorX),
+				UI.SelectedViewport->Viewport2MapY(CursorY), TileCursor,
+				TileCursorSize);
 		} else if (Editor.State == EditorEditUnit && CursorBuilding) {
 			if (!UnitPlacedThisPress) {
 				if (CanBuildUnitType(NULL, CursorBuilding,
@@ -1179,9 +1575,8 @@ static void EditorCallbackMouse(int x, int y)
 		for (i = 0; i < PlayerMax; ++i) {
 			if (bx < x && x < bx + 20 && by < y && y < by + 20) {
 				if (Map.Info.PlayerType[i] != PlayerNobody) {
-					std::ostringstream o;
-					o << _("Select player #") << i;
-					UI.StatusLine.Set(o.str());
+					sprintf_s(buf, sizeof(buf), "Select player #%d", i);
+					UI.StatusLine.Set(buf);
 				} else {
 					UI.StatusLine.Clear();
 				}
@@ -1208,10 +1603,10 @@ static void EditorCallbackMouse(int x, int y)
 				}
 				if (bx < x && x < bx + IconWidth &&
 						by < y && y < by + IconHeight) {
-					std::ostringstream o;
-					o << Editor.ShownUnitTypes[i]->Ident << " \""
-					  << Editor.ShownUnitTypes[i]->Name << "\"";
-					UI.StatusLine.Set(o.str());
+					sprintf_s(buf, sizeof(buf), "%s \"%s\"",
+						Editor.ShownUnitTypes[i]->Ident.c_str(),
+						Editor.ShownUnitTypes[i]->Name.c_str());
+					UI.StatusLine.Set(buf);
 					Editor.CursorUnitIndex = i;
 #if 0
 					ButtonUnderCursor = i + 100;
@@ -1227,10 +1622,9 @@ static void EditorCallbackMouse(int x, int y)
 	}
 
 	//
-	// Handle patch area
+	// Handle tile area
 	//
-	if (Editor.State == EditorEditPatch) {
-#if 0
+	if (Editor.State == EditorEditTile) {
 		i = 0;
 		bx = UI.InfoPanel.X + 4;
 		by = UI.InfoPanel.Y + 4 + IconHeight + 10;
@@ -1270,16 +1664,15 @@ static void EditorCallbackMouse(int x, int y)
 			}
 			by += TileSizeY+2;
 		}
-#endif
 	}
 
 	//
 	// Handle buttons
 	//
 	if (UI.InfoPanel.X + 4 < CursorX &&
-			CursorX < UI.InfoPanel.X + 4 + Editor.Select.Icon->G->Width &&
+			CursorX < UI.InfoPanel.X + 4 + IconWidth + 7 &&
 			UI.InfoPanel.Y + 4 < CursorY &&
-			CursorY < UI.InfoPanel.Y + 4 + Editor.Select.Icon->G->Width) {
+			CursorY < UI.InfoPanel.Y + 4 + IconHeight + 7) {
 		// FIXME: what is this button?
 		ButtonAreaUnderCursor = -1;
 		ButtonUnderCursor = SelectButton;
@@ -1288,29 +1681,31 @@ static void EditorCallbackMouse(int x, int y)
 		return;
 	}
 	if (UI.InfoPanel.X + 4 + UNIT_ICON_X < CursorX &&
-			CursorX < UI.InfoPanel.X + 4 + UNIT_ICON_X + Editor.Units.Icon->G->Width &&
+			CursorX < UI.InfoPanel.X + 4 + UNIT_ICON_X + IconWidth + 7 &&
 			UI.InfoPanel.Y + 4 + UNIT_ICON_Y < CursorY &&
-			CursorY < UI.InfoPanel.Y + 4 + UNIT_ICON_Y + Editor.Units.Icon->G->Height) {
+			CursorY < UI.InfoPanel.Y + 4 + UNIT_ICON_Y + IconHeight + 7) {
 		ButtonAreaUnderCursor = -1;
 		ButtonUnderCursor = UnitButton;
 		CursorOn = CursorOnButton;
 		UI.StatusLine.Set(_("Unit mode"));
 		return;
 	}
-	if (UI.InfoPanel.X + 4 + PATCH_ICON_X < CursorX &&
-			CursorX < UI.InfoPanel.X + 4 + PATCH_ICON_X + Editor.Patch.Icon->G->Width &&
-			UI.InfoPanel.Y + 4 + PATCH_ICON_Y < CursorY &&
-			CursorY < UI.InfoPanel.Y + 4 + PATCH_ICON_Y + Editor.Patch.Icon->G->Height) {
-		ButtonAreaUnderCursor = -1;
-		ButtonUnderCursor = PatchButton;
-		CursorOn = CursorOnButton;
-		UI.StatusLine.Set(_("Patch mode"));
-		return;
+	if (Editor.TerrainEditable) {
+		if (UI.InfoPanel.X + 4 + TILE_ICON_X < CursorX &&
+				CursorX < UI.InfoPanel.X + 4 + TILE_ICON_X + TileSizeX + 7 &&
+				UI.InfoPanel.Y + 4 + TILE_ICON_Y < CursorY &&
+				CursorY < UI.InfoPanel.Y + 4 + TILE_ICON_Y + TileSizeY + 7) {
+			ButtonAreaUnderCursor = -1;
+			ButtonUnderCursor = TileButton;
+			CursorOn = CursorOnButton;
+			UI.StatusLine.Set(_("Tile mode"));
+			return;
+		}
 	}
 	if (UI.InfoPanel.X + 4 + START_ICON_X < CursorX &&
-			CursorX < UI.InfoPanel.X + 4 + START_ICON_X + Editor.StartUnit->Icon.Icon->G->Width &&
+			CursorX < UI.InfoPanel.X + 4 + START_ICON_X + TileSizeX + 7 &&
 			UI.InfoPanel.Y + 4 + START_ICON_Y < CursorY &&
-			CursorY < UI.InfoPanel.Y + 4 + START_ICON_Y + Editor.StartUnit->Icon.Icon->G->Height) {
+			CursorY < UI.InfoPanel.Y + 4 + START_ICON_Y + TileSizeY + 7) {
 		ButtonAreaUnderCursor = -1;
 		ButtonUnderCursor = StartButton;
 		CursorOn = CursorOnButton;
@@ -1341,38 +1736,32 @@ static void EditorCallbackMouse(int x, int y)
 	//
 	// Map
 	//
-	PatchUnderCursor = NULL;
 	UnitUnderCursor = NULL;
 	if (x >= UI.MapArea.X && x <= UI.MapArea.EndX &&
 			y >= UI.MapArea.Y && y <= UI.MapArea.EndY) {
-		CViewport *vp = GetViewport(x, y);
+		CViewport *vp;
+
+		vp = GetViewport(x, y);
+		Assert(vp);
 		if (UI.MouseViewport != vp) { // viewport changed
 			UI.MouseViewport = vp;
+			DebugPrint("active viewport changed to %ld.\n" _C_
+				static_cast<long int>(UI.Viewports - vp));
 		}
 		CursorOn = CursorOnMap;
 
-		if (Editor.State == EditorEditPatch) {
-			// Show what patch is under the cursor
-			int tileX = UI.MouseViewport->Viewport2MapX(CursorX);
-			int tileY = UI.MouseViewport->Viewport2MapY(CursorY);
-			PatchUnderCursor = Map.PatchManager.getPatch(tileX, tileY);
-
-			if (PatchUnderCursor) {
-				ShowPatchInfo(PatchUnderCursor);
-				return;
-			}
-		} else {
-			// See if there is a unit under the cursor.
-			UnitUnderCursor = UnitOnScreen(
-				CursorX - UI.MouseViewport->X +
-					UI.MouseViewport->MapX * TileSizeX + UI.MouseViewport->OffsetX,
-				CursorY - UI.MouseViewport->Y +
-					UI.MouseViewport->MapY * TileSizeY + UI.MouseViewport->OffsetY);
-
-			if (UnitUnderCursor) {
-				ShowUnitInfo(UnitUnderCursor);
-				return;
-			}
+		//
+		// Look if there is a unit under the cursor.
+		// FIXME: use Viewport2MapX Viewport2MapY
+		//
+		UnitUnderCursor = UnitOnScreen(
+			CursorX - UI.MouseViewport->X +
+				UI.MouseViewport->MapX * TileSizeX + UI.MouseViewport->OffsetX,
+			CursorY - UI.MouseViewport->Y +
+				UI.MouseViewport->MapY * TileSizeY + UI.MouseViewport->OffsetY);
+		if (UnitUnderCursor) {
+			ShowUnitInfo(UnitUnderCursor);
+			return;
 		}
 	}
 	//
@@ -1443,11 +1832,12 @@ void CEditor::Init(void)
 		memset(Map.Visible[0], 0, Map.Info.MapWidth * Map.Info.MapHeight / 2 * sizeof(unsigned));
 		UnitCache.Init(Map.Info.MapWidth, Map.Info.MapHeight);
 
-#if 0
 		for (i = 0; i < Map.Info.MapWidth * Map.Info.MapHeight; ++i) {
+			Map.Fields[i].Tile = Map.Fields[i].SeenTile = 0;
+			Map.Fields[i].Tile = Map.Fields[i].SeenTile =
+				Map.Tileset.Table[0x50];
 			Map.Fields[i].Flags = Map.Tileset.FlagsTable[0x50];
 		}
-#endif
 		GameSettings.Resources = SettingsPresetMapDefault;
 		CreateGame("", &Map);
 	} else {
@@ -1457,7 +1847,6 @@ void CEditor::Init(void)
 	ReplayRevealMap = 1;
 	FlagRevealMap = 0;
 	Editor.SelectedPlayer = PlayerNumNeutral;
-	Editor.PatchOutlineColor = ColorBlack;
 
 	//
 	// Place the start points, which the loader discarded.
@@ -1481,8 +1870,6 @@ void CEditor::Init(void)
 	Select.Load();
 	Units.Icon = NULL;
 	Units.Load();
-	Patch.Icon = NULL;
-	Patch.Load();
 
 	RecalculateShownUnits();
 
@@ -1495,7 +1882,7 @@ void CEditor::Init(void)
 	EditorCallbacks.MouseExit = EditorCallbackExit;
 	EditorCallbacks.KeyPressed = EditorCallbackKeyDown;
 	EditorCallbacks.KeyReleased = EditorCallbackKeyUp;
-	EditorCallbacks.KeyRepeated = EditorCallbackKeyRepeated;
+	EditorCallbacks.KeyRepeated = EditorCallbackKey3;
 	EditorCallbacks.NetworkEvent = NetworkEvent;
 }
 
@@ -1508,14 +1895,15 @@ void CEditor::Init(void)
 **
 **  @todo  FIXME: Check if the map is valid, contains no failures.
 **         At least two players, one human slot, every player a startpoint
+**         ...
 */
-int EditorSaveMap(const std::string &file)
+int EditorSaveMap(const char *file)
 {
-	std::string fullName;
+	char path[PATH_MAX];
 
-	fullName = StratagusLibPath + "/" + file;
-	if (SaveStratagusMap(fullName, &Map) == -1) {
-		fprintf(stderr, "Cannot save map\n");
+	sprintf_s(path, sizeof(path), "%s/%s", StratagusLibPath.c_str(), file);
+	if (SaveStratagusMap(path, &Map, Editor.TerrainEditable) == -1) {
+		printf("Cannot save map\n");
 		return -1;
 	}
 
@@ -1529,12 +1917,12 @@ int EditorSaveMap(const std::string &file)
 /**
 **  Editor main event loop.
 */
-static void EditorMainLoop(void)
+void EditorMainLoop(void)
 {
-	bool OldCommandLogDisabled = CommandLogDisabled;
+	int OldCommandLogDisabled = CommandLogDisabled;
 	const EventCallback *old_callbacks = GetCallbacks();
 
-	CommandLogDisabled = true;
+	CommandLogDisabled = 1;
 	SetCallbacks(&EditorCallbacks);
 
 	gcn::Widget *oldTop = Gui->getTop();
@@ -1571,6 +1959,7 @@ static void EditorMainLoop(void)
 		InterfaceState = IfaceStateNormal;
 		Editor.State = EditorSelecting;
 		UI.SelectedViewport = UI.Viewports;
+		TileCursorSize = 1;
 
 		while (Editor.Running) {
 			CheckMusicFinished();
@@ -1588,7 +1977,7 @@ static void EditorMainLoop(void)
 			if (UI.KeyScroll) {
 				DoScrollArea(KeyScrollState, (KeyModifiers & ModifierControl) != 0);
 				if (CursorOn == CursorOnMap && (MouseButtons & LeftButton) &&
-						(Editor.State == EditorEditPatch ||
+						(Editor.State == EditorEditTile ||
 							Editor.State == EditorEditUnit)) {
 					EditorCallbackButtonDown(0);
 				}
@@ -1626,25 +2015,22 @@ static void EditorMainLoop(void)
 /**
 **  Start the editor
 **
-**  @param filename  Map to load, empty string to create a new map
+**  @param filename  Map to load, NULL to create a new map
 */
-void StartEditor(const std::string &filename)
+void StartEditor(const char *filename)
 {
 	std::string nc, rc;
-	bool newMap;
 
 	GetDefaultTextColors(nc, rc);
 
-	DebugPrint("StartEditor - %s\n" _C_ !filename.empty() ? filename.c_str() : "new map");
+	DebugPrint("StartEditor - %s\n" _C_ filename ? filename : "new map");
 
-	newMap = filename.empty();
-	if (!newMap) {
-		if (strcpy_s(CurrentMapPath, sizeof(CurrentMapPath), filename.c_str()) != 0) {
-			newMap = true;
+	if (filename) {
+		if (strcpy_s(CurrentMapPath, sizeof(CurrentMapPath), filename) != 0) {
+			filename = NULL;
 		}
 	}
-
-	if (newMap) {
+	if (!filename) {
 		// new map, choose some default values
 		strcpy_s(CurrentMapPath, sizeof(CurrentMapPath), "");
 		Map.Info.Description.clear();
@@ -1652,16 +2038,16 @@ void StartEditor(const std::string &filename)
 		if (Map.Info.MapWidth < 32) {
 			fprintf(stderr, "Invalid map width, using default value\n");
 			Map.Info.MapWidth = 32;
-		} else if (Map.Info.MapWidth > MaxMapWidth) {
+		} else if (Map.Info.MapWidth > 256) {
 			fprintf(stderr, "Invalid map width, using default value\n");
-			Map.Info.MapWidth = MaxMapWidth;
+			Map.Info.MapWidth = 256;
 		}
 		if (Map.Info.MapHeight < 32) {
 			fprintf(stderr, "Invalid map height, using default value\n");
 			Map.Info.MapHeight = 32;
-		} else if (Map.Info.MapHeight > MaxMapHeight) {
+		}else if (Map.Info.MapHeight > 256) {
 			fprintf(stderr, "Invalid map height, using default value\n");
-			Map.Info.MapHeight = MaxMapHeight;
+			Map.Info.MapHeight = 256;
 		}
 	}
 	
@@ -1671,6 +2057,8 @@ void StartEditor(const std::string &filename)
 	// Clear screen
 	Video.ClearScreen();
 	Invalidate();
+
+	Editor.TerrainEditable = true;
 
 	CleanGame();
 	CleanPlayers();

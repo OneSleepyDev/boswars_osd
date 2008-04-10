@@ -132,7 +132,8 @@ static void ShowTitleImage(TitleScreen *t)
 	}
 
 	while (timeout-- && WaitNoEvent) {
-		g->DrawClip((Video.Width - g->Width) / 2, (Video.Height - g->Height) / 2);
+		g->DrawSubClip(0, 0, g->Width, g->Height,
+			(Video.Width - g->Width) / 2, (Video.Height - g->Height) / 2);
 		TitleScreenLabel **labels = t->Labels;
 		if (labels && labels[0] && labels[0]->Font &&
 				labels[0]->Font->IsLoaded()) {

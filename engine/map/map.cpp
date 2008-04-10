@@ -9,7 +9,7 @@
 //
 /**@name map.cpp - The map. */
 //
-//      (c) Copyright 1998-2008 by Lutz Sammer, Vladi Shabanski and
+//      (c) Copyright 1998-2007 by Lutz Sammer, Vladi Shabanski and
 //                                 Francois Beerten
 //
 //      This program is free software; you can redistribute it and/or modify
@@ -54,19 +54,28 @@ int FlagRevealMap;               /// Flag must reveal the map
 int ReplayRevealMap;             /// Reveal Map is replay
 char CurrentMapPath[1024];       /// Path of the current map
 
-/**
-** Size of a tile in X
-*/
-int TileSizeX = 32;
-
-/**
-** Size of a tile in Y
-*/
-int TileSizeY = 32;
-
 /*----------------------------------------------------------------------------
 --  Visible and explored handling
 ----------------------------------------------------------------------------*/
+
+/**
+**  Marks seen tile -- used mainly for the Fog Of War
+**
+**  @param x  Map X tile-position.
+**  @param y  Map Y tile-position.
+*/
+void CMap::MarkSeenTile(int x, int y)
+{
+	CMapField *mf = this->Field(x, y);
+
+	// Nothing changed? Already seeing the correct tile.
+	if (mf->Tile == mf->SeenTile) {
+		return;
+	}
+	mf->SeenTile = mf->Tile;
+
+	UI.Minimap.UpdateXY(x, y);
+}
 
 /**
 **  Reveal the entire map.
@@ -85,6 +94,7 @@ void CMap::Reveal(void)
 					this->Field(x, y)->Visible[p] = 1;
 				}
 			}
+			MarkSeenTile(x, y);
 		}
 	}
 	//
@@ -196,6 +206,19 @@ bool UnitCanBeAt(const CUnit *unit, int x, int y)
 }
 
 /**
+**  Fixes initially the wood and seen tiles.
+*/
+void PreprocessMap(void)
+{
+	for (int ix = 0; ix < Map.Info.MapWidth; ++ix) {
+		for (int iy = 0; iy < Map.Info.MapHeight; ++iy) {
+			CMapField *mf = Map.Field(ix, iy);
+			mf->SeenTile = mf->Tile;
+		}
+	}
+}
+
+/**
 **  Release info about a map.
 **
 **  @param info  CMapInfo pointer.
@@ -213,16 +236,7 @@ void FreeMapInfo(CMapInfo *info)
 }
 
 /**
-**  Initialize the map
-*/
-void CMap::Init()
-{
-	InitFogOfWar();
-	Map.PatchManager.load();
-}
-
-/**
-**  Alocate and initialize map table
+**  Alocate and initialise map table
 */
 void CMap::Create()
 {
@@ -242,12 +256,15 @@ void CMap::Clean(void)
 	delete[] this->Fields;
 	delete[] this->Visible[0];
 
+	// Tileset freed by Tileset?
+
 	FreeMapInfo(&this->Info);
 	this->Fields = NULL;
 	memset(this->Visible, 0, sizeof(this->Visible));
 	this->NoFogOfWar = false;
-
-	this->PatchManager.clear();
+	this->Tileset.Clear();
+	this->TileModelsFileName.clear();
+	this->TileGraphic = NULL;
 
 	FlagRevealMap = 0;
 	ReplayRevealMap = 0;

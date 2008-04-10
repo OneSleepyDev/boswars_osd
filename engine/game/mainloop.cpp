@@ -9,7 +9,7 @@
 //
 /**@name mainloop.cpp - The main game loop. */
 //
-//      (c) Copyright 1998-2008 by Lutz Sammer and Jimmy Salmon
+//      (c) Copyright 1998-2006 by Lutz Sammer and Jimmy Salmon
 //
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@
 
 #include "stratagus.h"
 #include "video.h"
+#include "tileset.h"
 #include "map.h"
 #include "font.h"
 #include "sound.h"
@@ -196,7 +197,10 @@ void UpdateDisplay(void)
 
 		if (!BigMapMode) {
 			for (int i = 0; i < (int)UI.Fillers.size(); ++i) {
-				UI.Fillers[i].G->DrawClip(UI.Fillers[i].X, UI.Fillers[i].Y);
+				UI.Fillers[i].G->DrawSubClip(0, 0,
+					UI.Fillers[i].G->Width,
+					UI.Fillers[i].G->Height,
+					UI.Fillers[i].X, UI.Fillers[i].Y);
 			}
 			DrawMenuButtonArea();
 

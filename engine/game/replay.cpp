@@ -38,7 +38,6 @@
 #include "replay.h"
 #include "version.h"
 #include "iolib.h"
-#include "iocompat.h"
 #include "script.h"
 #include "unittype.h"
 #include "unit_manager.h"
@@ -139,9 +138,9 @@ public:
 // Variables
 //----------------------------------------------------------------------------
 
-bool CommandLogDisabled;           /// True if command log is off
+int CommandLogDisabled;            /// True if command log is off
 ReplayType ReplayGameType;         /// Replay game type
-static bool DisabledLog;           /// Disabled log for replay
+static int DisabledLog;            /// Disabled log for replay
 static CFile *LogFile;             /// Replay log file
 static unsigned long NextLogCycle; /// Next log cycle number
 static int InitReplay;             /// Initialize replay
@@ -417,7 +416,7 @@ void CommandLog(const char *action, const CUnit *unit, int flush,
 		LogFile = new CFile;
 		if (LogFile->open(buf, CL_OPEN_WRITE) == -1) {
 			// don't retry for each command
-			CommandLogDisabled = false;
+			CommandLogDisabled = 0;
 			delete LogFile;
 			LogFile = NULL;
 			return;
@@ -583,7 +582,7 @@ static int CclReplayLog(lua_State *l)
 		} else if (!strcmp(value, "LocalPlayer")) {
 			replay->LocalPlayer = LuaToNumber(l, -1);
 		} else if (!strcmp(value, "Players")) {
-			if (!lua_istable(l, -1) || lua_objlen(l, -1) != PlayerMax) {
+			if (!lua_istable(l, -1) || luaL_getn(l, -1) != PlayerMax) {
 				LuaError(l, "incorrect argument");
 			}
 			for (j = 0; j < PlayerMax; ++j) {
@@ -627,7 +626,7 @@ static int CclReplayLog(lua_State *l)
 		} else if (!strcmp(value, "MapRichness")) {
 			replay->MapRichness = LuaToNumber(l, -1);
 		} else if (!strcmp(value, "Engine")) {
-			if (!lua_istable(l, -1) || lua_objlen(l, -1) != 3) {
+			if (!lua_istable(l, -1) || luaL_getn(l, -1) != 3) {
 				LuaError(l, "incorrect argument");
 			}
 			lua_rawgeti(l, -1, 1);
@@ -640,7 +639,7 @@ static int CclReplayLog(lua_State *l)
 			replay->Engine[2] = LuaToNumber(l, -1);
 			lua_pop(l, 1);
 		} else if (!strcmp(value, "Network")) {
-			if (!lua_istable(l, -1) || lua_objlen(l, -1) != 3) {
+			if (!lua_istable(l, -1) || luaL_getn(l, -1) != 3) {
 				LuaError(l, "incorrect argument");
 			}
 			lua_rawgeti(l, -1, 1);
@@ -664,7 +663,7 @@ static int CclReplayLog(lua_State *l)
 	if (!SaveGameLoading) {
 		ApplyReplaySettings();
 	} else {
-		CommandLogDisabled = false;
+		CommandLogDisabled = 0;
 	}
 
 	return 0;
@@ -702,8 +701,8 @@ int LoadReplay(const std::string &name)
 
 	NextLogCycle = ~0UL;
 	if (!CommandLogDisabled) {
-		CommandLogDisabled = true;
-		DisabledLog = true;
+		CommandLogDisabled = 1;
+		DisabledLog = 1;
 	}
 	GameObserve = true;
 	InitReplay = 1;
@@ -740,8 +739,8 @@ void CleanReplayLog(void)
 	ReplayStep = NULL;
 
 // if (DisabledLog) {
-		CommandLogDisabled = false;
-		DisabledLog = false;
+		CommandLogDisabled = 0;
+		DisabledLog = 0;
 // }
 	GameObserve = false;
 	NetPlayers = 0;

@@ -46,9 +46,8 @@ Players[7].EnergyStored = 1000
 Players[7].MagmaStored = 2000
 Players[7].AiName = "ai-default"
 
--- patches
-Load(GetCurrentLuaPath() .. "/patch.lua")
-patch("river.map", 0, 0)
+-- load tilesets
+LoadTileModels(GetCurrentLuaPath().."/terrain.lua")
 
 -- place units
 CreateUnit("unit-engineer", 1, {57, 51})

@@ -55,6 +55,8 @@ void CMap::Save(CFile *file) const
 	file->printf("\n--- -----------------------------------------\n");
 	file->printf("--- MODULE: map\n\n");
 
+	file->printf("LoadTileModels(\"%s\")\n\n", this->TileModelsFileName.c_str());
+	
 	file->printf("StratagusMap(\n");
 
 	file->printf("  \"version\", \"" StratagusFormatString "\",\n",
@@ -74,7 +76,7 @@ void CMap::Save(CFile *file) const
 			CMapField* mf;
 
 			mf = this->Field(w, h);
-			file->printf("  {");
+			file->printf("  {%3d, %3d,", mf->Tile, mf->SeenTile);
 			for (int i = 0; i < PlayerMax; ++i) {
 				if (mf->Visible[i] == 1) {
 					file->printf(" \"explored\", %d,", i);
