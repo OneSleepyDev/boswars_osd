@@ -149,7 +149,6 @@ static FullReplay *CurrentReplay;
 static LogEntry *ReplayStep;
 
 static void AppendLog(LogEntry *log, CFile *dest);
-bool IsReplayGame();
 
 //----------------------------------------------------------------------------
 // Log commands
@@ -311,6 +310,9 @@ static void PrintLogCommand(LogEntry *log, CFile *dest)
 */
 static void SaveFullLog(CFile *dest)
 {
+	LogEntry *log;
+	int i;
+
 	dest->printf("ReplayLog( {\n");
 	dest->printf("  Comment1 = \"%s\",\n", CurrentReplay->Comment1.c_str());
 	dest->printf("  Comment2 = \"%s\",\n", CurrentReplay->Comment2.c_str());
@@ -322,7 +324,7 @@ static void SaveFullLog(CFile *dest)
 	dest->printf("  Type = %d,\n", CurrentReplay->Type);
 	dest->printf("  LocalPlayer = %d,\n", CurrentReplay->LocalPlayer);
 	dest->printf("  Players = {\n");
-	for (int i = 0; i < PlayerMax; ++i) {
+	for (i = 0; i < PlayerMax; ++i) {
 		if (!CurrentReplay->Players[i].Name.empty()) {
 			dest->printf("\t{ Name = \"%s\",", CurrentReplay->Players[i].Name.c_str());
 		} else {
@@ -346,8 +348,7 @@ static void SaveFullLog(CFile *dest)
 	dest->printf("  Network = { %d, %d, %d }\n",
 		CurrentReplay->Network[0], CurrentReplay->Network[1], CurrentReplay->Network[2]);
 	dest->printf("} )\n");
-
-	LogEntry *log = CurrentReplay->Commands;
+	log = CurrentReplay->Commands;
 	while (log) {
 		PrintLogCommand(log, dest);
 		log = log->Next;
@@ -429,6 +430,7 @@ void CommandLog(const char *action, const CUnit *unit, int flush,
 
 	if (!CurrentReplay) {
 		CurrentReplay = StartReplay();
+
 		SaveFullLog(LogFile);
 	}
 
@@ -546,10 +548,6 @@ static int CclLog(lua_State *l)
 */
 static int CclReplayLog(lua_State *l)
 {
-	if (CommandLogDisabled && !IsReplayGame()) {
-		return 0;
-	}
-
 	FullReplay *replay;
 	const char *value;
 	int j;
@@ -665,6 +663,8 @@ static int CclReplayLog(lua_State *l)
 	// Apply CurrentReplay settings.
 	if (!SaveGameLoading) {
 		ApplyReplaySettings();
+	} else {
+		CommandLogDisabled = false;
 	}
 
 	return 0;
@@ -685,9 +685,7 @@ bool IsReplayGame()
 */
 void SaveReplayList(CFile *file)
 {
-	if (CurrentReplay) {
-		SaveFullLog(file);
-	}
+	SaveFullLog(file);
 }
 
 /**
@@ -741,10 +739,10 @@ void CleanReplayLog(void)
 	}
 	ReplayStep = NULL;
 
-	if (DisabledLog) {
+// if (DisabledLog) {
 		CommandLogDisabled = false;
 		DisabledLog = false;
-	}
+// }
 	GameObserve = false;
 	NetPlayers = 0;
 	ReplayGameType = ReplayNone;
