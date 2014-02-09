@@ -33,9 +33,7 @@
 #ifdef _MSC_VER
 #define STDCALL __stdcall
 #else
-#ifndef STDCALL
 #define STDCALL
-#endif
 #endif
 
 #if defined(DEBUG_ASTAR)
